@@ -261,33 +261,46 @@ final class DayClock: ObservableObject {
                 return DayWindow(start: start, end: end)
             }
 
+            let startToday = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
+            let endToday = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
+
             if customStartMinutes < customEndMinutes {
-                // 当天窗口。窗口外由进度钳制到 0% / 100%，剩余时间不会超过总时长。
-                let start = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
-                let end = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
-                return DayWindow(start: start, end: end)
+                // 当天窗口：开始之后显示今天这一段；开始之前显示昨天已结束的那一段。
+                guard date < startToday else {
+                    return DayWindow(start: startToday, end: endToday)
+                }
+                let previousDay = calendar.date(byAdding: .day, value: -1, to: startOfDay)
+                    ?? startOfDay.addingTimeInterval(-86_400)
+                let previousStart = time(on: previousDay, minutes: customStartMinutes, calendar: calendar)
+                let previousEnd = time(on: previousDay, minutes: customEndMinutes, calendar: calendar)
+                return DayWindow(start: previousStart, end: previousEnd)
             }
 
             // 跨夜窗口：
-            // - 凌晨（< 结束时间）：昨晚开始的那一段
-            // - 晚上（>= 开始时间）：今晚开始的那一段
-            // - 其余时间：最近结束的一段（100%，剩余 0）
-            let endToday = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
-            let startToday = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
-            let previousDay = calendar.date(byAdding: .day, value: -1, to: startOfDay)
-                ?? startOfDay.addingTimeInterval(-86_400)
-            let previousStart = time(on: previousDay, minutes: customStartMinutes, calendar: calendar)
-
-            if date < endToday {
-                return DayWindow(start: previousStart, end: endToday)
-            }
+            // - 开始时间之后：今晚开始、明天结束的这一段
+            // - 开始时间之前：昨晚开始、今天结束的那一段（可能正在进行，也可能已经结束）
             if date >= startToday {
                 let next = calendar.date(byAdding: .day, value: 1, to: endToday)
                     ?? endToday.addingTimeInterval(86_400)
                 return DayWindow(start: startToday, end: next)
             }
+            let previousDay = calendar.date(byAdding: .day, value: -1, to: startOfDay)
+                ?? startOfDay.addingTimeInterval(-86_400)
+            let previousStart = time(on: previousDay, minutes: customStartMinutes, calendar: calendar)
             return DayWindow(start: previousStart, end: endToday)
         }
+    }
+
+    /// 自定义时段的下一次开始：今天还没到开始时刻就是今天，否则是明天。
+    var nextWindowStart: Date? {
+        guard mode == .custom else { return nil }
+        let calendar = self.calendar
+        let startOfDay = calendar.startOfDay(for: now)
+        let todayStart = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
+        if now < todayStart { return todayStart }
+        let nextDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)
+            ?? startOfDay.addingTimeInterval(86_400)
+        return time(on: nextDay, minutes: customStartMinutes, calendar: calendar)
     }
 
     // MARK: - 进度
@@ -315,6 +328,11 @@ final class DayClock: ObservableObject {
     }
 
     var displayCaption: String {
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天已结束", "Done for today")
+                : t("这个时段已结束", "Session ended")
+        }
         switch progressMode {
         case .elapsed: return t("今天已过", "Today elapsed")
         case .remaining: return t("今天还剩", "Today left")
@@ -331,7 +349,7 @@ final class DayClock: ObservableObject {
         if isWindowComplete {
             return mode == .natural
                 ? t("今天结束了", "The day is done")
-                : t("这个时段结束了", "This window is done")
+                : t("这个时段已结束", "Session ended")
         }
         return t("还剩 \(durationText(remaining))", "\(durationText(remaining)) left")
     }
@@ -340,17 +358,17 @@ final class DayClock: ObservableObject {
         if isWindowComplete {
             return mode == .natural
                 ? t("今天已经过完了", "Today is done")
-                : t("这个时段已经过完了", "This window is done")
+                : t("这个时段已经过完", "Session complete")
         }
         return t("已过 \(durationText(elapsed))", "\(durationText(elapsed)) elapsed")
     }
 
-    /// 浮窗上的第二行：已过模式显示剩余，剩余模式显示已过。
+    /// 浮窗上的第二行：已过模式显示剩余，剩余模式显示已过；结束时提示下一段何时开始。
     var cardSecondaryText: String {
         if isWindowComplete {
             return mode == .natural
-                ? t("今天已结束", "Done for today")
-                : t("这个时段已结束", "Done for now")
+                ? t("今天已结束，明天见", "Done — see you tomorrow")
+                : customCompletionShortLine
         }
         switch progressMode {
         case .elapsed: return remainingLine
@@ -392,7 +410,7 @@ final class DayClock: ObservableObject {
         if isWindowComplete {
             return mode == .natural
                 ? t("今天结束了，明天见", "The day is done — see you tomorrow")
-                : t("这个时段结束了，明天见", "This window is done — see you tomorrow")
+                : customCompletionLine
         }
         switch progress {
         case ..<0.10: return t("新的一天，慢慢来", "A fresh day — take it slow")
@@ -408,7 +426,7 @@ final class DayClock: ObservableObject {
         if isWindowComplete {
             return mode == .natural
                 ? t("今天结束了，明天见", "The day is done — see you tomorrow")
-                : t("这个时段结束了，明天见", "This window is done — see you tomorrow")
+                : customCompletionLine
         }
         let window = window
         let milestones: [(threshold: Double, zh: String, en: String)] = [
@@ -450,6 +468,26 @@ final class DayClock: ObservableObject {
     }
 
     // MARK: - 私有
+
+    private var nextCustomStartText: String? {
+        nextWindowStart.map(clockText)
+    }
+
+    /// 浮窗第二行用短文案，保证单行显示。
+    private var customCompletionShortLine: String {
+        if let next = nextCustomStartText {
+            return t("已结束 · \(next) 开始", "Done · next starts \(next)")
+        }
+        return t("这个时段已结束", "Session ended")
+    }
+
+    /// 弹窗正文 / 页脚用的完成文案。
+    private var customCompletionLine: String {
+        if let next = nextCustomStartText {
+            return t("这个时段已结束，\(next) 开始", "Session ended — next starts at \(next)")
+        }
+        return t("这个时段已结束", "Session ended")
+    }
 
     private func clockText(_ date: Date) -> String {
         let formatter = DateFormatter()

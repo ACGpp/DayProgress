@@ -149,6 +149,18 @@
   .download-card p{color:rgba(255,255,255,.6); margin:0; font-size:15px}
   .btn.light{background:#fff; color:var(--ink); box-shadow:0 12px 26px rgba(0,0,0,.25)}
   .dl-note{font-size:13px; color:var(--muted); margin:20px 0 0}
+  .install-block{margin-top:22px; background:var(--card); border:1px solid var(--line);
+    border-radius:24px; padding:28px 30px; box-shadow:0 12px 30px rgba(25,44,80,.05)}
+  .install-block h3{font-size:16px; margin:0 0 20px; letter-spacing:-.01em}
+  .install-steps{list-style:none; margin:0; padding:0; display:grid;
+    grid-template-columns:repeat(4,1fr); gap:18px}
+  .install-step{display:flex; gap:12px; align-items:flex-start; min-width:0}
+  .install-num{flex:0 0 auto; width:27px; height:27px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; font-size:12.5px; font-weight:800;
+    color:var(--teal); background:rgba(31,174,153,.11); border:1px solid rgba(31,174,153,.24)}
+  .install-step b{display:block; font-size:14px; margin:3px 0 4px; letter-spacing:-.01em}
+  .install-step p{margin:0; font-size:13px; line-height:1.58; color:var(--muted)}
+  .install-block .dl-note{margin:20px 0 0; padding-top:16px; border-top:1px solid var(--line)}
 
   footer{border-top:1px solid rgba(27,37,54,.08); margin-top:30px}
   .footer-inner{max-width:1120px; margin:0 auto; padding:38px 24px 46px;
@@ -164,12 +176,15 @@
     .why-inner{grid-template-columns:1fr}
     .grid{grid-template-columns:repeat(2,1fr)}
     .shots{grid-template-columns:1fr}
+    .install-steps{grid-template-columns:repeat(2,1fr)}
   }
   @media (max-width:620px){
     .nav-links{display:none}
     .grid{grid-template-columns:1fr}
     .stats{grid-template-columns:1fr 1fr}
     .download-card{padding:36px 28px}
+    .install-block{padding:24px 22px}
+    .install-steps{grid-template-columns:1fr}
     .footer-inner{flex-direction:column; align-items:flex-start}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -300,7 +315,40 @@
       </div>
       <a class="btn light" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="dl.button">下载最新版</a>
     </div>
-    <p class="dl-note" data-i18n="dl.note">App 未公证，首次打开如被系统拦截：系统设置 → 隐私与安全性 → 仍要打开。</p>
+    <div class="install-block">
+      <h3 data-i18n="dl.install.title">安装步骤</h3>
+      <ol class="install-steps">
+        <li class="install-step">
+          <span class="install-num" aria-hidden="true">1</span>
+          <div>
+            <b data-i18n="dl.step1.t">下载并解压</b>
+            <p data-i18n="dl.step1.d">从 GitHub Releases 下载最新的 zip，双击解压得到 App。</p>
+          </div>
+        </li>
+        <li class="install-step">
+          <span class="install-num" aria-hidden="true">2</span>
+          <div>
+            <b data-i18n="dl.step2.t">拖进「应用程序」</b>
+            <p data-i18n="dl.step2.d">把 DayProgress.app 拖到 /Applications（或 ~/Applications）。</p>
+          </div>
+        </li>
+        <li class="install-step">
+          <span class="install-num" aria-hidden="true">3</span>
+          <div>
+            <b data-i18n="dl.step3.t">首次打开放行</b>
+            <p data-i18n="dl.step3.d">被拦截时：系统设置 → 隐私与安全性 → 仍要打开。</p>
+          </div>
+        </li>
+        <li class="install-step">
+          <span class="install-num" aria-hidden="true">4</span>
+          <div>
+            <b data-i18n="dl.step4.t">在菜单栏使用</b>
+            <p data-i18n="dl.step4.d">没有 Dock 图标；点右上角沙漏打开面板，退出在面板底部。</p>
+          </div>
+        </li>
+      </ol>
+      <p class="dl-note" data-i18n="dl.note">App 为 ad-hoc 签名、未公证，Gatekeeper 拦截属正常；macOS 15+ 右键 → 打开不一定有效，请用「仍要打开」。</p>
+    </div>
   </section>
 </main>
 
@@ -362,7 +410,16 @@ const I18N = {
     "dl.title": "下载 DayProgress",
     "dl.sub": "macOS 13+ · 通用二进制 · 免费开源",
     "dl.button": "下载最新版",
-    "dl.note": "App 未公证，首次打开如被系统拦截：系统设置 → 隐私与安全性 → 仍要打开。",
+    "dl.install.title": "安装步骤",
+    "dl.step1.t": "下载并解压",
+    "dl.step1.d": "从 GitHub Releases 下载最新的 zip，双击解压得到 App。",
+    "dl.step2.t": "拖进「应用程序」",
+    "dl.step2.d": "把 DayProgress.app 拖到 /Applications（或 ~/Applications）。",
+    "dl.step3.t": "首次打开放行",
+    "dl.step3.d": "被拦截时：系统设置 → 隐私与安全性 → 仍要打开。",
+    "dl.step4.t": "在菜单栏使用",
+    "dl.step4.d": "没有 Dock 图标；点右上角沙漏打开面板，退出在面板底部。",
+    "dl.note": "App 为 ad-hoc 签名、未公证，Gatekeeper 拦截属正常；macOS 15+ 右键 → 打开不一定有效，请用「仍要打开」。",
     "footer.built": "用 DeepSeek-V4-Flash-1017 写成 · MIT License"
   },
   en: {
@@ -406,7 +463,16 @@ const I18N = {
     "dl.title": "Download DayProgress",
     "dl.sub": "macOS 13+ · Universal binary · Free & open source",
     "dl.button": "Get the latest release",
-    "dl.note": "The app is ad-hoc signed and not notarized. If macOS blocks it on first launch: System Settings → Privacy & Security → Open Anyway.",
+    "dl.install.title": "Install",
+    "dl.step1.t": "Download & unzip",
+    "dl.step1.d": "Get the latest zip from GitHub Releases and double-click to unzip.",
+    "dl.step2.t": "Drag into Applications",
+    "dl.step2.d": "Move DayProgress.app into /Applications (or ~/Applications).",
+    "dl.step3.t": "Allow first launch",
+    "dl.step3.d": "Blocked? System Settings → Privacy & Security → Open Anyway.",
+    "dl.step4.t": "Use the menu bar",
+    "dl.step4.d": "No Dock icon; click the hourglass, quit from the panel footer.",
+    "dl.note": "The app is ad-hoc signed and not notarized, so a Gatekeeper warning is expected; on macOS 15+ right-click → Open may not work — use Open Anyway.",
     "footer.built": "Built with DeepSeek-V4-Flash-1017 · MIT License"
   }
 };

@@ -15,17 +15,64 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
 </p>
 
+## Installation
+
+**Requirements:** macOS 13 or later · universal binary (Apple Silicon + Intel) · free and open source (MIT).
+
+### Three steps
+
+1. **Download** the latest `DayProgress-x.y.z.zip` from [Releases](https://github.com/ACGpp/DayProgress/releases/latest).
+2. **Unzip** it — double-click the zip to get `DayProgress.app`.
+3. **Drag it into Applications** — drop the app into `/Applications` (or `~/Applications`), then double-click it.
+
+### First launch: Gatekeeper will block it once
+
+The app is **ad-hoc signed and not notarized**, so macOS blocks the first launch after a download. If that happens:
+
+1. Open **System Settings → Privacy & Security** and scroll down to the DayProgress notice.
+2. Click **Open Anyway** and confirm (you may need your login password).
+3. Open DayProgress from Applications again.
+
+On macOS 15 and later, right-click → Open may not work; the Open Anyway button is the reliable path.
+
+Terminal alternative (only if the zip came from the official Release above):
+
+```bash
+xattr -dr com.apple.quarantine /Applications/DayProgress.app
+```
+
+> This removes the app's quarantine flag and skips Gatekeeper's check. Change the path if you installed to `~/Applications`; never use it on apps you don't trust.
+
+### After install
+
+DayProgress is a menu-bar-only app (`LSUIElement`) with no Dock icon. The first launch shows a one-time welcome window; close it and the app keeps running in the menu bar at the top-right of the screen.
+
+- **Open the panel:** click the hourglass icon in the menu bar.
+- **Quit:** click the menu bar icon → **Quit** at the bottom-right of the panel footer. The floating card's right-click menu also has **Quit DayProgress**.
+
+### Launch at login
+
+After you enable “Launch at login” in Settings, you may need to approve it in **System Settings → General → Login Items**. The app is ad-hoc signed, and some macOS versions may refuse to register it; if the toggle fails, move the app into `/Applications` and try again, or add it manually under Login Items.
+
+### Uninstall
+
+1. If “Launch at login” is on, turn it off first; if the app is already gone, remove the leftover entry in **System Settings → General → Login Items**.
+2. Quit from the menu bar panel footer.
+3. Drag `/Applications/DayProgress.app` (or `~/Applications/DayProgress.app`) to the Trash.
+4. Optionally remove saved settings: `defaults delete com.tree.dayprogress` (if it says the domain doesn't exist, there was nothing saved).
+
+### Troubleshooting
+
+- **Nothing visible after launching — or the icon disappeared?** There's no Dock icon or main window; check the top-right menu bar. The icon can be hidden by the notch or by menu bar managers such as Bartender / Ice. Quit and reopen if needed.
+- **“Unidentified developer” or “damaged” warning?** Follow the Gatekeeper steps above and click Open Anyway. Only use the `xattr` command if you're certain the download came from the official Release.
+- **It crashes on launch or the architecture is wrong?** Official releases are universal; if you build from source, use `UNIVERSAL=1 ./build.sh` for a release build. Check with `lipo -archs /Applications/DayProgress.app/Contents/MacOS/DayProgress` — it should list `arm64` and `x86_64`.
+- **“Launch at login” won't turn on?** The app must be in Applications, and macOS may need approval in System Settings → General → Login Items; ad-hoc signing can make registration fail on some systems.
+
 ## Why
 
 Someone on X said it best: **24 minutes is 1/60 of your day.**
 
 1440 minutes a day — 24 of them is 1.67%, and it takes one short scroll to burn one. I built this little app with **DeepSeek-V4-Flash-1017** to make that number visible. It won't manage your time; it just shows it.
-
-## Download
-
-- Grab the latest `DayProgress-x.y.z.zip` from [Releases](../../releases/latest), unzip it and drop `DayProgress.app` into Applications.
-- Universal binary (Apple Silicon + Intel), macOS 13+.
-- The app is ad-hoc signed and not notarized. If macOS blocks it on first launch, use System Settings → Privacy & Security → Open Anyway (on macOS 15+ right-click → Open may not be enough).
 
 ## Screenshots
 
@@ -119,8 +166,8 @@ DAYPROGRESS_DEBUG_POPOVER=settings ./build/DayProgress.app/Contents/MacOS/DayPro
 
 ### Notes
 
-- Not notarized — meant for personal use; you may need to allow it manually on first launch.
-- “Launch at login” expects the app to live in Applications.
+- Not notarized — meant for personal use; you may need to allow it manually on first launch (see “First launch” above).
+- “Launch at login” expects the app to live in Applications, and macOS may require approval under System Settings → General → Login Items.
 - All settings are stored locally in `com.tree.dayprogress` UserDefaults. Nothing is uploaded.
 
 ## Credits

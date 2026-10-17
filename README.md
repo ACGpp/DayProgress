@@ -15,6 +15,59 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
 </p>
 
+## 安装
+
+**要求**：macOS 13 或更高版本 · 通用二进制（Apple Silicon + Intel）· 免费开源（MIT）。
+
+### 三步装好
+
+1. **下载**：打开 [最新 Release](https://github.com/ACGpp/DayProgress/releases/latest)，下载 `DayProgress-x.y.z.zip`。
+2. **解压**：双击 zip，得到 `DayProgress.app`。
+3. **拖进「应用程序」**：把 `DayProgress.app` 拖到 `/Applications`（或 `~/Applications`），再双击打开。
+
+### 第一次打开：Gatekeeper 会拦一次
+
+App 是 **ad-hoc 签名、未做公证** 的，从网上下载后 macOS 会拦截首次启动。被拦时：
+
+1. 打开 **「系统设置 → 隐私与安全性」**，向下找到 DayProgress 的拦截提示。
+2. 点 **「仍要打开」**（英文界面为 **Open Anyway**），按系统提示确认（可能需要登录密码）。
+3. 回到「应用程序」再次双击 DayProgress。
+
+macOS 15 及以后，右键 →「打开」不一定有效，用「仍要打开」最稳。
+
+终端替代方案（仅在确认 zip 来自上面的官方 Release 时使用）：
+
+```bash
+xattr -dr com.apple.quarantine /Applications/DayProgress.app
+```
+
+> 这会移除 App 的隔离标记，相当于跳过 Gatekeeper 检查。装在 `~/Applications` 就把路径换成对应的；不要对来路不明的 App 使用。
+
+### 装好之后
+
+DayProgress 是纯菜单栏 App（`LSUIElement`），没有 Dock 图标。第一次启动会有一个一次性的欢迎窗口，关掉它，App 会继续常驻在屏幕右上角菜单栏。
+
+- **打开面板**：点菜单栏的沙漏图标。
+- **退出**：点菜单栏图标 → 面板底部右侧的「退出」；浮窗右键菜单里也有「退出 DayProgress」。
+
+### 登录时启动
+
+在设置里打开「登录时启动」后，可能需要到 **「系统设置 → 通用 → 登录项」** 允许 DayProgress。App 使用 ad-hoc 签名，个别 macOS 版本可能拒绝注册；如果开关报错，先把 App 放到 `/Applications` 再试，或在「登录项」里手动添加。
+
+### 卸载
+
+1. 如果开过「登录时启动」，先在设置里关掉；如果 App 已经删了，去「系统设置 → 通用 → 登录项」里移除残留项。
+2. 从菜单栏面板底部点「退出」。
+3. 把 `/Applications/DayProgress.app`（或 `~/Applications/DayProgress.app`）拖进废纸篓。
+4. 想连设置一起清掉，可选：`defaults delete com.tree.dayprogress`（提示 domain 不存在就说明本来没存过）。
+
+### 遇到问题
+
+- **双击后什么都没看到，或菜单栏图标不见了？** 它没有 Dock 图标或主窗口，先看屏幕右上角菜单栏；图标可能被刘海或 Bartender / Ice 之类的菜单栏工具藏起来。也可以先退出再重新打开。
+- **提示「无法验证开发者」或「已损坏」？** 按上面的 Gatekeeper 步骤点「仍要打开」。只有确认下载源是官方 Release 时，才用 `xattr` 命令。
+- **启动闪退或架构不对？** 官方 Release 是通用二进制；自己编译的话用 `UNIVERSAL=1 ./build.sh` 打发布版。检查架构：`lipo -archs /Applications/DayProgress.app/Contents/MacOS/DayProgress`，应包含 `arm64` 和 `x86_64`。
+- **「登录时启动」打不开？** 先把 App 放进「应用程序」，再到「系统设置 → 通用 → 登录项」允许；ad-hoc 签名在个别系统上可能注册失败。
+
 ## 为什么做这个
 
 在 X 上看到一句话：**24 分钟，就是你一天的 1/60。**
@@ -22,12 +75,6 @@
 一天 1440 分钟，24 分钟刚好是 1/60，也就是 1.67%。一天里能有几个这样的 24 分钟？刷一会儿手机就没了。
 
 于是我用 **DeepSeek-V4-Flash-1017** 写了这个小工具。它不管理你的时间，只是让时间变得可见：抬头看一眼菜单栏，就知道今天溜走了多少。
-
-## 下载
-
-- 到 [Releases](../../releases/latest) 下载最新的 `DayProgress-x.y.z.zip`，解压后把 `DayProgress.app` 拖进「应用程序」。
-- 发布包是通用二进制（Apple Silicon + Intel），要求 macOS 13+。
-- App 用 ad-hoc 签名、未做公证。首次打开如果被系统拦截：到「系统设置 → 隐私与安全性」点「仍要打开」（macOS 15+ 右键 → 打开可能不够），或右键 App → 打开试试。
 
 ## 长什么样
 
@@ -130,8 +177,8 @@ DAYPROGRESS_DEBUG_POPOVER=settings ./build/DayProgress.app/Contents/MacOS/DayPro
 
 ### 已知限制
 
-- App 未公证，仅适合自用；首次打开可能需要手动放行。
-- 「登录时启动」需要 App 位于「应用程序」文件夹。
+- App 未公证，仅适合自用；首次打开可能需要手动放行（见上面的「第一次打开」）。
+- 「登录时启动」需要 App 位于「应用程序」文件夹，且可能需要在「系统设置 → 通用 → 登录项」里允许。
 - 语言 / 时区等设置只存在本机 `com.tree.dayprogress` 的 UserDefaults 里，不上传任何数据。
 
 ## 致谢

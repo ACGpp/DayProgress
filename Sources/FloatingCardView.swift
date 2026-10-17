@@ -61,6 +61,7 @@ struct FloatingCardView: View {
                     .font(.system(size: 10.5, weight: .medium))
                     .foregroundStyle(Color.white.opacity(0.6))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
 
             Spacer(minLength: 0)
@@ -83,6 +84,7 @@ struct FloatingCardView: View {
                     .font(.system(size: 9.5, weight: .medium))
                     .foregroundStyle(Color.white.opacity(0.62))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
             }
 
             Spacer(minLength: 0)

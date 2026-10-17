@@ -20,6 +20,7 @@ SOURCES=(
     Sources/FloatingCardView.swift
     Sources/PopoverView.swift
     Sources/LoginItem.swift
+    Sources/WelcomeView.swift
 )
 
 rm -rf "$BUNDLE"

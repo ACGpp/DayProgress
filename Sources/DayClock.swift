@@ -102,6 +102,7 @@ final class DayClock: ObservableObject {
         static let floatingY = "floatingY"
         static let floatingTopRightX = "floatingTopRightX"
         static let floatingTopRightY = "floatingTopRightY"
+        static let hasSeenWelcome = "hasSeenWelcome"
     }
 
     @Published private(set) var now: Date
@@ -298,6 +299,9 @@ final class DayClock: ObservableObject {
         return min(max(elapsed / window.duration, 0), 1)
     }
 
+    /// 当前窗口是否已经走完（自然日到了 24:00，或自定义时段已结束）。
+    var isWindowComplete: Bool { progress >= 1 - 1e-9 }
+
     /// 进入“已过 / 剩余”模式后的显示值。
     var displayedProgress: Double {
         switch progressMode {
@@ -324,15 +328,30 @@ final class DayClock: ObservableObject {
     var elapsedText: String { durationText(elapsed) }
 
     var remainingLine: String {
-        t("还剩 \(durationText(remaining))", "\(durationText(remaining)) left")
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天结束了", "The day is done")
+                : t("这个时段结束了", "This window is done")
+        }
+        return t("还剩 \(durationText(remaining))", "\(durationText(remaining)) left")
     }
 
     var elapsedLine: String {
-        t("已过 \(durationText(elapsed))", "\(durationText(elapsed)) elapsed")
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天已经过完了", "Today is done")
+                : t("这个时段已经过完了", "This window is done")
+        }
+        return t("已过 \(durationText(elapsed))", "\(durationText(elapsed)) elapsed")
     }
 
     /// 浮窗上的第二行：已过模式显示剩余，剩余模式显示已过。
     var cardSecondaryText: String {
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天已结束", "Done for today")
+                : t("这个时段已结束", "Done for now")
+        }
         switch progressMode {
         case .elapsed: return remainingLine
         case .remaining: return elapsedLine
@@ -370,6 +389,11 @@ final class DayClock: ObservableObject {
     }
 
     var moodText: String {
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天结束了，明天见", "The day is done — see you tomorrow")
+                : t("这个时段结束了，明天见", "This window is done — see you tomorrow")
+        }
         switch progress {
         case ..<0.10: return t("新的一天，慢慢来", "A fresh day — take it slow")
         case ..<0.30: return t("上午好，先做最重要的一件事", "Good morning — start with the most important thing")
@@ -381,6 +405,11 @@ final class DayClock: ObservableObject {
     }
 
     var milestoneText: String {
+        if isWindowComplete {
+            return mode == .natural
+                ? t("今天结束了，明天见", "The day is done — see you tomorrow")
+                : t("这个时段结束了，明天见", "This window is done — see you tomorrow")
+        }
         let window = window
         let milestones: [(threshold: Double, zh: String, en: String)] = [
             (0.25, "四分之一", "a quarter"),
@@ -402,6 +431,7 @@ final class DayClock: ObservableObject {
 
     func durationText(_ time: TimeInterval) -> String {
         let total = Int(time.rounded())
+        if total <= 0 { return language == .chinese ? "0 分钟" : "0m" }
         if language == .chinese {
             if total < 60 { return "不到 1 分钟" }
             let hours = total / 3600

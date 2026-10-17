@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var effectView: NSVisualEffectView?
     private var hostingView: NSHostingView<FloatingCardView>?
     private var cancellables: Set<AnyCancellable> = []
+    private var welcomeWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -72,10 +73,50 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             window.orderFrontRegardless()
             NSApp.activate(ignoringOtherApps: true)
         }
+
+        presentWelcomeIfNeeded()
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    // MARK: - 首次启动引导
+
+    /// 第一次打开时用一个轻量窗口介绍菜单栏、浮窗和退出入口，只出现一次。
+    private func presentWelcomeIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: DayClock.Key.hasSeenWelcome) else { return }
+        defaults.set(true, forKey: DayClock.Key.hasSeenWelcome)
+
+        let language = DayClock.shared.language
+        let hosting = NSHostingView(
+            rootView: WelcomeView(language: language) { [weak self] in
+                self?.welcomeWindow?.close()
+            }
+        )
+        let size = hosting.fittingSize
+
+        let window = NSWindow(
+            contentRect: NSRect(origin: .zero, size: size),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = language == .chinese ? "欢迎使用 DayProgress" : "Welcome to DayProgress"
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.isMovableByWindowBackground = true
+        window.isReleasedWhenClosed = false
+        window.level = .floating
+        window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
+        window.contentView = hosting
+        window.center()
+        window.delegate = self
+        welcomeWindow = window
+
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
     }
 
     // MARK: - 浮窗
@@ -247,5 +288,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func panelDidMove(_ notification: Notification) {
         persistPosition()
+    }
+}
+
+extension AppDelegate: NSWindowDelegate {
+    func windowWillClose(_ notification: Notification) {
+        guard let closed = notification.object as? NSWindow, closed === welcomeWindow else { return }
+        welcomeWindow = nil
     }
 }

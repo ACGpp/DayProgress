@@ -55,12 +55,12 @@ enum PercentPrecision: String, CaseIterable, Identifiable {
     }
 
     func format(_ fraction: Double) -> String {
-        switch self {
-        case .integer:
-            return String(format: "%.0f%%", fraction * 100)
-        case .decimal:
-            return String(format: "%.1f%%", fraction * 100)
-        }
+        let clamped = min(max(fraction, 0), 1)
+        let digits = self == .integer ? 0 : 1
+        let factor = pow(10.0, Double(digits))
+        // 向下取整到显示精度，避免 99.96% 提前显示成 100%。
+        let percent = floor(clamped * 100 * factor + 1e-9) / factor
+        return String(format: "%.\(digits)f%%", percent)
     }
 }
 

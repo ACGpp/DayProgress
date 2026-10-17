@@ -5,7 +5,8 @@ import ServiceManagement
 @MainActor
 enum LoginItem {
     static var isEnabled: Bool {
-        SMAppService.mainApp.status == .enabled
+        let status = SMAppService.mainApp.status
+        return status == .enabled || status == .requiresApproval
     }
 
     /// 已注册但用户还没在系统设置里批准。
@@ -15,6 +16,11 @@ enum LoginItem {
 
     static func setEnabled(_ enabled: Bool) throws {
         if enabled {
+            // 已注册但用户还没批准：直接打开系统设置的登录项页面，避免重复注册报错。
+            if SMAppService.mainApp.status == .requiresApproval {
+                SMAppService.openSystemSettingsLoginItems()
+                return
+            }
             try SMAppService.mainApp.register()
         } else {
             try SMAppService.mainApp.unregister()

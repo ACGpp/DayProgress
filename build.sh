@@ -22,6 +22,7 @@ SOURCES=(
     Sources/LoginItem.swift
 )
 
+rm -rf "$BUNDLE"
 mkdir -p "$CACHE" "$BUNDLE/Contents/MacOS" "$BUNDLE/Contents/Resources"
 
 build_arch() {
@@ -47,7 +48,7 @@ else
 fi
 
 cp Resources/Info.plist "$BUNDLE/Contents/Info.plist"
-cp LICENSE "$BUNDLE/Contents/Resources/LICENSE"
+install -m 644 LICENSE "$BUNDLE/Contents/Resources/LICENSE"
 
 ICON_SOURCE=""
 if [ -f "build/AppIcon.png" ]; then

@@ -25,7 +25,7 @@ Someone on X said it best: **24 minutes is 1/60 of your day.**
 
 - Grab the latest `DayProgress-x.y.z.zip` from [Releases](../../releases/latest), unzip it and drop `DayProgress.app` into Applications.
 - Universal binary (Apple Silicon + Intel), macOS 13+.
-- The app is ad-hoc signed and not notarized. If macOS blocks it on first launch, right-click → Open, or allow it in System Settings → Privacy & Security.
+- The app is ad-hoc signed and not notarized. If macOS blocks it on first launch, use System Settings → Privacy & Security → Open Anyway (on macOS 15+ right-click → Open may not be enough).
 
 ## Screenshots
 

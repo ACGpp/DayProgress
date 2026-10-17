@@ -21,6 +21,7 @@ struct FloatingCardView: View {
                 color: Color.black.opacity(contentShadowOpacity),
                 radius: contentShadowOpacity > 0 ? 3 : 0
             )
+            .contentShape(Rectangle())
             .transaction { transaction in transaction.animation = nil }
             .contextMenu {
                 Button(clock.t("隐藏浮窗", "Hide card")) { clock.showFloatingCard = false }

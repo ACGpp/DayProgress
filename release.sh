@@ -17,6 +17,6 @@ codesign --verify --deep --strict "$APP"
 lipo -archs "$APP/Contents/MacOS/DayProgress"
 
 echo "==> 打包 ${ARCHIVE}"
-ditto -c -k --sequesterRsrc --keepParent "$APP" "$ARCHIVE"
+ditto -c -k --norsrc --keepParent "$APP" "$ARCHIVE"
 ls -lh "$ARCHIVE"
 echo "完成：$(pwd)/${ARCHIVE}"

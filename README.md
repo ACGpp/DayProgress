@@ -27,7 +27,7 @@
 
 - 到 [Releases](../../releases/latest) 下载最新的 `DayProgress-x.y.z.zip`，解压后把 `DayProgress.app` 拖进「应用程序」。
 - 发布包是通用二进制（Apple Silicon + Intel），要求 macOS 13+。
-- App 用 ad-hoc 签名、未做公证。首次打开如果被系统拦截：右键 App → 打开，或到「系统设置 → 隐私与安全性」里允许。
+- App 用 ad-hoc 签名、未做公证。首次打开如果被系统拦截：到「系统设置 → 隐私与安全性」点「仍要打开」（macOS 15+ 右键 → 打开可能不够），或右键 App → 打开试试。
 
 ## 长什么样
 

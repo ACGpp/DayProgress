@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>一个 macOS 菜单栏小工具：把“今天过去了多少”变成随时能看见的百分比。</b><br>
-  <a href="README.en.md">English</a> · 中文
+  🌐 <a href="https://ACGpp.github.io/DayProgress/">在线主页</a> · <a href="README.en.md">English</a> · 中文
 </p>
 
 <p align="center">

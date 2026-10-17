@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DayProgress · 今日进度 — 抬头看见今天过去了多少</title>
+<meta name="description" content="A tiny macOS menu bar app that shows how much of today is already gone. Free & open source, macOS 13+, universal binary.">
+<link rel="canonical" href="https://ACGpp.github.io/DayProgress/">
+<link rel="icon" type="image/png" href="icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DayProgress">
+<meta property="og:title" content="DayProgress — 24 minutes is 1/60 of your day">
+<meta property="og:description" content="A tiny macOS menu bar app that makes today's progress visible — one glance and you know how much of the day is already gone. Free & open source.">
+<meta property="og:url" content="https://ACGpp.github.io/DayProgress/">
+<meta property="og:image" content="https://ACGpp.github.io/DayProgress/site/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="DayProgress — 24 minutes is 1/60 of your day">
+<meta name="twitter:description" content="A tiny macOS menu bar app that makes today's progress visible. Free & open source, macOS 13+.">
+<meta name="twitter:image" content="https://ACGpp.github.io/DayProgress/site/og-image.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "DayProgress",
+  "alternateName": "今日进度",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "macOS 13+",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://github.com/ACGpp/DayProgress/blob/main/LICENSE",
+  "url": "https://ACGpp.github.io/DayProgress/",
+  "downloadUrl": "https://github.com/ACGpp/DayProgress/releases/latest",
+  "codeRepository": "https://github.com/ACGpp/DayProgress",
+  "description": "A tiny macOS menu bar app that shows how much of today is already gone."
+}
+</script>
+
+<style>
+  :root{
+    --ink:#1B2536; --muted:#5C6C86; --line:#E2EAF5; --bg:#F5F8FD;
+    --teal:#1FAE99; --blue:#3E8FFF; --coral:#E86357; --amber:#E8962E;
+    --card:#FFFFFF; --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+  }
+  a{color:inherit; text-decoration:none}
+  img{max-width:100%; display:block}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px}
+  .grad{background:linear-gradient(100deg,var(--teal),var(--blue) 55%,var(--coral));
+    -webkit-background-clip:text; background-clip:text; color:transparent}
+
+  /* nav */
+  .nav{position:sticky; top:0; z-index:30; backdrop-filter:blur(14px);
+    background:rgba(245,248,253,.82); border-bottom:1px solid rgba(27,37,54,.07)}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:18px;
+    max-width:1120px; margin:0 auto; padding:14px 24px}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:16px; letter-spacing:-.01em}
+  .brand img{width:28px; height:28px; border-radius:8px}
+  .nav-links{display:flex; align-items:center; gap:24px; font-size:14px; color:var(--muted); font-weight:600}
+  .nav-links a:hover{color:var(--ink)}
+  .lang{border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:999px;
+    padding:6px 13px; font-size:13px; font-weight:700; cursor:pointer}
+  .lang:hover{border-color:#c9d7ea}
+
+  /* hero */
+  .hero{position:relative; overflow:hidden}
+  .hero::before{content:""; position:absolute; width:720px; height:720px; border-radius:50%;
+    background:radial-gradient(circle,rgba(31,174,153,.18),transparent 62%); top:-330px; right:-180px; filter:blur(20px)}
+  .hero::after{content:""; position:absolute; width:640px; height:640px; border-radius:50%;
+    background:radial-gradient(circle,rgba(62,143,255,.14),transparent 62%); bottom:-380px; left:-220px; filter:blur(20px)}
+  .hero-inner{position:relative; z-index:2; display:grid; grid-template-columns:1.02fr .98fr;
+    gap:44px; align-items:center; padding:84px 24px 70px; max-width:1120px; margin:0 auto}
+  .badge{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700;
+    color:var(--teal); background:rgba(31,174,153,.09); border:1px solid rgba(31,174,153,.22);
+    padding:7px 14px; border-radius:999px; letter-spacing:.03em}
+  .badge::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--teal)}
+  h1{font-size:clamp(42px,5.6vw,66px); line-height:1.06; letter-spacing:-.035em; font-weight:800;
+    margin:22px 0 18px}
+  .hero-sub{font-size:18.5px; line-height:1.65; color:var(--muted); max-width:520px; margin:0}
+  .cta{display:flex; flex-wrap:wrap; gap:12px; margin-top:30px}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    font-size:15px; font-weight:700; padding:13px 22px; border-radius:13px; cursor:pointer;
+    border:1px solid transparent; transition:transform .12s ease, filter .12s ease}
+  .btn:hover{transform:translateY(-1px); filter:brightness(1.03)}
+  .btn.primary{background:linear-gradient(135deg,var(--teal),#28B9D8); color:#fff;
+    box-shadow:0 10px 24px rgba(31,174,153,.28)}
+  .btn.ghost{background:#fff; border-color:var(--line); color:var(--ink)}
+  .hero-note{font-size:12.5px; color:#8A99B3; margin:18px 0 0}
+  .hero-visual{position:relative}
+  .hero-visual .halo{position:absolute; inset:-8% -6% -12% -6%; border-radius:36px;
+    background:radial-gradient(60% 60% at 60% 40%,rgba(62,143,255,.18),transparent 70%); filter:blur(26px)}
+  .hero-visual .card-lg{position:relative; width:100%; filter:drop-shadow(0 30px 50px rgba(16,29,54,.28))}
+
+  /* sections */
+  .section{max-width:1120px; margin:0 auto; padding:84px 24px}
+  .eyebrow{display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:800;
+    letter-spacing:.12em; text-transform:uppercase; color:var(--teal); margin:0 0 14px}
+  .eyebrow::before{content:""; width:24px; height:3px; border-radius:2px; background:var(--teal)}
+  h2{font-size:clamp(28px,3.4vw,42px); line-height:1.18; letter-spacing:-.025em; font-weight:800; margin:0 0 16px}
+  .lead{font-size:17.5px; color:var(--muted); margin:0; max-width:640px}
+
+  /* why */
+  .why-inner{display:grid; grid-template-columns:1.05fr .95fr; gap:46px; align-items:center}
+  .why-copy p{font-size:16.5px; color:var(--muted); margin:0 0 14px}
+  .why-copy b{color:var(--ink)}
+  .stats{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:20px;
+    padding:26px 18px; text-align:center; box-shadow:0 10px 26px rgba(25,44,80,.05)}
+  .stat b{display:block; font-size:36px; letter-spacing:-.03em; line-height:1.1}
+  .stat span{display:block; margin-top:7px; font-size:12.5px; color:var(--muted); font-weight:600}
+
+  /* features */
+  .features-head{margin-bottom:34px}
+  .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+  .feature{background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:26px; box-shadow:0 12px 30px rgba(25,44,80,.05)}
+  .feature .icon{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    font-size:22px; background:linear-gradient(135deg,rgba(31,174,153,.13),rgba(62,143,255,.13)); margin-bottom:18px}
+  .feature h3{font-size:17.5px; margin:0 0 8px; letter-spacing:-.01em}
+  .feature p{font-size:14.5px; line-height:1.62; color:var(--muted); margin:0}
+
+  /* screenshots */
+  .shots{display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-top:36px}
+  .shot{margin:0; background:linear-gradient(160deg,#FBFDFF,#EAF1FB); border:1px solid var(--line);
+    border-radius:24px; padding:26px; display:flex; flex-direction:column; align-items:center}
+  .shot img{width:min(100%,340px); filter:drop-shadow(0 18px 30px rgba(20,36,64,.22))}
+  .shot figcaption{margin-top:20px; font-size:13.5px; font-weight:700; color:var(--muted)}
+  .shot.tall img{width:min(100%,340px)}
+
+  /* download */
+  .download-card{position:relative; overflow:hidden; border-radius:30px; padding:52px 54px;
+    background:
+      radial-gradient(640px 320px at 88% -20%,rgba(31,174,153,.32),transparent 62%),
+      radial-gradient(520px 320px at -10% 120%,rgba(62,143,255,.26),transparent 62%),
+      linear-gradient(140deg,#0E1219,#171D28);
+    color:#fff; display:flex; align-items:center; justify-content:space-between; gap:34px; flex-wrap:wrap;
+    box-shadow:0 26px 60px rgba(13,20,34,.35)}
+  .download-card h2{color:#fff; margin-bottom:8px}
+  .download-card p{color:rgba(255,255,255,.6); margin:0; font-size:15px}
+  .btn.light{background:#fff; color:var(--ink); box-shadow:0 12px 26px rgba(0,0,0,.25)}
+  .dl-note{font-size:13px; color:var(--muted); margin:20px 0 0}
+
+  footer{border-top:1px solid rgba(27,37,54,.08); margin-top:30px}
+  .footer-inner{max-width:1120px; margin:0 auto; padding:38px 24px 46px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+    font-size:13.5px; color:var(--muted)}
+  .footer-brand{display:flex; align-items:center; gap:9px; font-weight:800; color:var(--ink)}
+  .footer-brand img{width:22px; height:22px; border-radius:6px}
+  .footer-links{display:flex; gap:18px; font-weight:600}
+  .footer-links a:hover{color:var(--ink)}
+
+  @media (max-width:900px){
+    .hero-inner{grid-template-columns:1fr; padding-top:60px; gap:40px}
+    .why-inner{grid-template-columns:1fr}
+    .grid{grid-template-columns:repeat(2,1fr)}
+    .shots{grid-template-columns:1fr}
+  }
+  @media (max-width:620px){
+    .nav-links{display:none}
+    .grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:1fr 1fr}
+    .download-card{padding:36px 28px}
+    .footer-inner{flex-direction:column; align-items:flex-start}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="./">
+      <img src="icon.png" alt="DayProgress icon">
+      <span>DayProgress</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#why" data-i18n="nav.why">为什么</a>
+      <a href="#features" data-i18n="nav.features">功能</a>
+      <a href="#screenshots" data-i18n="nav.screenshots">截图</a>
+      <a href="#download" data-i18n="nav.download">下载</a>
+      <a href="https://github.com/ACGpp/DayProgress" target="_blank" rel="noopener">GitHub</a>
+    </nav>
+    <button class="lang" id="langToggle" type="button">EN</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="badge" data-i18n="hero.badge">macOS 13+ · 免费开源</span>
+        <h1 data-i18n="hero.title">24 分钟，<br>是你一天的 <span class="grad">1/60</span></h1>
+        <p class="hero-sub" data-i18n="hero.sub">DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="hero.download">下载 macOS 版</a>
+          <a class="btn ghost" href="https://github.com/ACGpp/DayProgress" target="_blank" rel="noopener" data-i18n="hero.github">查看源码</a>
+        </div>
+        <p class="hero-note" data-i18n="hero.note">通用二进制（Apple Silicon + Intel）· MIT License</p>
+      </div>
+      <div class="hero-visual">
+        <div class="halo"></div>
+        <img class="card-lg" src="site/card-large.png" alt="DayProgress floating card" width="1072" height="456">
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="why">
+    <div class="why-inner">
+      <div class="why-copy">
+        <p class="eyebrow" data-i18n="why.eyebrow">为什么做这个</p>
+        <h2 data-i18n="why.title">一天 1440 分钟，24 分钟只是 1.67%</h2>
+        <p data-i18n="why.p1">在 X 上看到一句话：<b>“24 分钟，就是你一天的 1/60。”</b></p>
+        <p data-i18n="why.p2">于是我用 DeepSeek-V4-Flash-1017 写了 DayProgress。它不会替我管理时间，只是让时间变得可见。</p>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>1440</b><span data-i18n="why.stat1">分钟 / 天</span></div>
+        <div class="stat"><b>24</b><span data-i18n="why.stat2">分钟 = 1/60</span></div>
+        <div class="stat"><b>1.67%</b><span data-i18n="why.stat3">一天的比例</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="features-head">
+      <p class="eyebrow" data-i18n="feat.eyebrow">功能</p>
+      <h2 data-i18n="feat.title">抬头就能看到今天过去了多少</h2>
+    </div>
+    <div class="grid">
+      <div class="feature">
+        <div class="icon">⏳</div>
+        <h3 data-i18n="feat.1.t">菜单栏常驻</h3>
+        <p data-i18n="feat.1.d">沙漏图标 + 实时百分比，随时扫一眼就知道今天过了多少。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🖥</div>
+        <h3 data-i18n="feat.2.t">桌面浮窗</h3>
+        <p data-i18n="feat.2.d">环形进度 + 大号百分比 + 剩余时间，置顶、可拖动、位置会记住。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🔄</div>
+        <h3 data-i18n="feat.3.t">已过 / 剩余</h3>
+        <p data-i18n="feat.3.d">想看得更强一点？切成“还剩多少”，圆环也会跟着反向显示。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🎨</div>
+        <h3 data-i18n="feat.4.t">3 档尺寸 × 3 种外观</h3>
+        <p data-i18n="feat.4.d">大 / 中 / 小，深色 / 毛玻璃 / 透明，放在桌面上刚刚好。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🌏</div>
+        <h3 data-i18n="feat.5.t">中 / 英文 + 20 个时区</h3>
+        <p data-i18n="feat.5.d">界面一键切换，时区可选，出差不改“今天”的定义。</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⏱</div>
+        <h3 data-i18n="feat.6.t">自定义一天</h3>
+        <p data-i18n="feat.6.d">自然日，或者 07:00–23:00 这样只看清醒时间，跨夜也支持。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="screenshots">
+    <p class="eyebrow" data-i18n="shots.eyebrow">截图</p>
+    <h2 data-i18n="shots.title">真实界面</h2>
+    <div class="shots">
+      <figure class="shot">
+        <img src="site/popover-main.png" alt="Menu bar panel">
+        <figcaption data-i18n="shots.1">菜单栏面板</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="site/popover-settings.png" alt="Settings page">
+        <figcaption data-i18n="shots.2">设置页</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="site/card-remaining.png" alt="Remaining mode">
+        <figcaption data-i18n="shots.3">剩余模式</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="site/popover-en.png" alt="English UI">
+        <figcaption data-i18n="shots.4">英文界面</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="download">
+    <div class="download-card">
+      <div>
+        <h2 data-i18n="dl.title">下载 DayProgress</h2>
+        <p data-i18n="dl.sub">macOS 13+ · 通用二进制 · 免费开源</p>
+      </div>
+      <a class="btn light" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="dl.button">下载最新版</a>
+    </div>
+    <p class="dl-note" data-i18n="dl.note">App 未公证，首次打开如被系统拦截：系统设置 → 隐私与安全性 → 仍要打开。</p>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="icon.png" alt="">
+      <span>DayProgress</span>
+    </div>
+    <span data-i18n="footer.built">用 DeepSeek-V4-Flash-1017 写成 · MIT License</span>
+    <nav class="footer-links">
+      <a href="https://github.com/ACGpp/DayProgress" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/ACGpp/DayProgress/releases" target="_blank" rel="noopener">Releases</a>
+      <a href="https://github.com/ACGpp/DayProgress/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+const I18N = {
+  zh: {
+    "nav.why": "为什么",
+    "nav.features": "功能",
+    "nav.screenshots": "截图",
+    "nav.download": "下载",
+    "hero.badge": "macOS 13+ · 免费开源",
+    "hero.title": "24 分钟，<br>是你一天的 <span class=\"grad\">1/60</span>",
+    "hero.sub": "DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。",
+    "hero.download": "下载 macOS 版",
+    "hero.github": "查看源码",
+    "hero.note": "通用二进制（Apple Silicon + Intel）· MIT License",
+    "why.eyebrow": "为什么做这个",
+    "why.title": "一天 1440 分钟，24 分钟只是 1.67%",
+    "why.p1": "在 X 上看到一句话：<b>“24 分钟，就是你一天的 1/60。”</b>",
+    "why.p2": "于是我用 DeepSeek-V4-Flash-1017 写了 DayProgress。它不会替我管理时间，只是让时间变得可见。",
+    "why.stat1": "分钟 / 天",
+    "why.stat2": "分钟 = 1/60",
+    "why.stat3": "一天的比例",
+    "feat.eyebrow": "功能",
+    "feat.title": "抬头就能看到今天过去了多少",
+    "feat.1.t": "菜单栏常驻",
+    "feat.1.d": "沙漏图标 + 实时百分比，随时扫一眼就知道今天过了多少。",
+    "feat.2.t": "桌面浮窗",
+    "feat.2.d": "环形进度 + 大号百分比 + 剩余时间，置顶、可拖动、位置会记住。",
+    "feat.3.t": "已过 / 剩余",
+    "feat.3.d": "想看得更强一点？切成“还剩多少”，圆环也会跟着反向显示。",
+    "feat.4.t": "3 档尺寸 × 3 种外观",
+    "feat.4.d": "大 / 中 / 小，深色 / 毛玻璃 / 透明，放在桌面上刚刚好。",
+    "feat.5.t": "中 / 英文 + 20 个时区",
+    "feat.5.d": "界面一键切换，时区可选，出差不改“今天”的定义。",
+    "feat.6.t": "自定义一天",
+    "feat.6.d": "自然日，或者 07:00–23:00 这样只看清醒时间，跨夜也支持。",
+    "shots.eyebrow": "截图",
+    "shots.title": "真实界面",
+    "shots.1": "菜单栏面板",
+    "shots.2": "设置页",
+    "shots.3": "剩余模式",
+    "shots.4": "英文界面",
+    "dl.title": "下载 DayProgress",
+    "dl.sub": "macOS 13+ · 通用二进制 · 免费开源",
+    "dl.button": "下载最新版",
+    "dl.note": "App 未公证，首次打开如被系统拦截：系统设置 → 隐私与安全性 → 仍要打开。",
+    "footer.built": "用 DeepSeek-V4-Flash-1017 写成 · MIT License"
+  },
+  en: {
+    "nav.why": "Why",
+    "nav.features": "Features",
+    "nav.screenshots": "Screenshots",
+    "nav.download": "Download",
+    "hero.badge": "macOS 13+ · Free & open source",
+    "hero.title": "24 minutes,<br>is <span class=\"grad\">1/60</span> of your day",
+    "hero.sub": "DayProgress is a tiny macOS menu bar app that makes today's progress visible — one glance and you know how much of the day is already gone.",
+    "hero.download": "Download for macOS",
+    "hero.github": "View source",
+    "hero.note": "Universal binary (Apple Silicon + Intel) · MIT License",
+    "why.eyebrow": "Why",
+    "why.title": "1440 minutes a day. 24 of them is 1.67%.",
+    "why.p1": "Someone on X said: <b>“24 minutes is 1/60 of your day.”</b>",
+    "why.p2": "So I built DayProgress with DeepSeek-V4-Flash-1017. It won't manage your time — it just makes time visible.",
+    "why.stat1": "minutes / day",
+    "why.stat2": "minutes = 1/60",
+    "why.stat3": "of a day",
+    "feat.eyebrow": "Features",
+    "feat.title": "Time, at a glance",
+    "feat.1.t": "Live % in the menu bar",
+    "feat.1.d": "An hourglass and today's percentage, always one glance away.",
+    "feat.2.t": "Floating ring card",
+    "feat.2.d": "Big percentage, time left, always on top. Drag it anywhere; it remembers.",
+    "feat.3.t": "Elapsed or remaining",
+    "feat.3.d": "Show how much is gone — or how much is left. The ring follows your choice.",
+    "feat.4.t": "3 sizes × 3 styles",
+    "feat.4.d": "Large, medium, mini; dark, glass or clear. Make it fit your desktop.",
+    "feat.5.t": "Chinese / English + 20 time zones",
+    "feat.5.d": "Switch the whole UI instantly. Pick a time zone to define “today”.",
+    "feat.6.t": "Your own day window",
+    "feat.6.d": "Natural day or a custom range like 07:00–23:00 — overnight supported.",
+    "shots.eyebrow": "Screenshots",
+    "shots.title": "The real thing",
+    "shots.1": "Menu bar panel",
+    "shots.2": "Settings",
+    "shots.3": "Remaining mode",
+    "shots.4": "English UI",
+    "dl.title": "Download DayProgress",
+    "dl.sub": "macOS 13+ · Universal binary · Free & open source",
+    "dl.button": "Get the latest release",
+    "dl.note": "The app is ad-hoc signed and not notarized. If macOS blocks it on first launch: System Settings → Privacy & Security → Open Anyway.",
+    "footer.built": "Built with DeepSeek-V4-Flash-1017 · MIT License"
+  }
+};
+
+function applyLang(lang) {
+  const dict = I18N[lang] || I18N.en;
+  document.documentElement.dataset.lang = lang;
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.querySelectorAll("[data-i18n]").forEach(function (el) {
+    const key = el.getAttribute("data-i18n");
+    const value = dict[key];
+    if (typeof value === "string") el.innerHTML = value;
+  });
+  document.title = lang === "zh"
+    ? "DayProgress · 今日进度 — 抬头看见今天过去了多少"
+    : "DayProgress — How much of today is already gone?";
+  const btn = document.getElementById("langToggle");
+  if (btn) btn.textContent = lang === "zh" ? "EN" : "中文";
+  try { localStorage.setItem("dayprogress.lang", lang); } catch (e) {}
+}
+
+let currentLang = "zh";
+try {
+  const saved = localStorage.getItem("dayprogress.lang");
+  if (saved === "zh" || saved === "en") currentLang = saved;
+  else currentLang = (navigator.language || "en").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+} catch (e) {}
+
+document.getElementById("langToggle").addEventListener("click", function () {
+  currentLang = currentLang === "zh" ? "en" : "zh";
+  applyLang(currentLang);
+});
+
+applyLang(currentLang);
+</script>
+</body>
+</html>

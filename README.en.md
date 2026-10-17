@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A tiny macOS menu bar app that shows how much of today is already gone.</b><br>
-  <a href="README.md">中文</a> · English
+  🌐 <a href="https://ACGpp.github.io/DayProgress/">Website</a> · <a href="README.md">中文</a> · English
 </p>
 
 <p align="center">

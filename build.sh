@@ -47,6 +47,7 @@ else
 fi
 
 cp Resources/Info.plist "$BUNDLE/Contents/Info.plist"
+cp LICENSE "$BUNDLE/Contents/Resources/LICENSE"
 
 ICON_SOURCE=""
 if [ -f "build/AppIcon.png" ]; then

@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A tiny macOS menu bar app that shows how much of today is already gone.</b><br>
-  中文 · <a href="README.md">Chinese</a>
+  <a href="README.md">中文</a> · English
 </p>
 
 <p align="center">
@@ -61,19 +61,19 @@ Three sizes and three styles (dark / glass / clear):
 - **Floating card**: ring + big percentage + time left; always on top, draggable, remembers its position.
 - **Elapsed / remaining mode** — the ring follows the selected value.
 - **Chinese / English UI**, switchable in settings.
-- **20 time zones** plus "follow system"; the date and “today” follow the chosen zone.
+- **19 time zones** plus "follow system"; the date and “today” follow the chosen zone.
 - **Day window**: natural day (00:00–24:00) or a custom range (e.g. 07:00–23:00, overnight supported).
 - **Percent precision**: whole numbers or one decimal.
 - **Card size / style**: large / medium / small × dark / glass / clear.
 - **Launch at login**, all settings persisted locally.
-- Refreshes every 10 seconds and only redraws when values change.
+- Refreshes every 10 seconds.
 
 ## Build from source
 
 Requires macOS 13+ with Xcode or Command Line Tools (`swiftc`).
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/ACGpp/DayProgress.git
 cd DayProgress
 
 ./build.sh              # current architecture

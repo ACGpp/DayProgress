@@ -8,7 +8,7 @@ struct FloatingCardView: View {
     private var cardSize: CardSize { clock.cardSize }
 
     private var contentShadowOpacity: Double {
-        clock.cardStyle == .plain ? 0.55 : 0
+        clock.cardStyle == .plain ? 0.75 : 0
     }
 
     var body: some View {
@@ -19,7 +19,7 @@ struct FloatingCardView: View {
             .clipShape(RoundedRectangle(cornerRadius: cardSize.cornerRadius, style: .continuous))
             .shadow(
                 color: Color.black.opacity(contentShadowOpacity),
-                radius: contentShadowOpacity > 0 ? 2.5 : 0
+                radius: contentShadowOpacity > 0 ? 3 : 0
             )
             .transaction { transaction in transaction.animation = nil }
             .contextMenu {

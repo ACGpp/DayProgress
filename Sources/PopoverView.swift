@@ -7,6 +7,7 @@ struct PopoverView: View {
 
     @State private var page: Page
     @State private var loginItemOn = false
+    @State private var loginItemNeedsApproval = false
     @State private var loginItemError: String?
 
     enum Page {
@@ -32,6 +33,7 @@ struct PopoverView: View {
         .frame(width: 336)
         .onAppear {
             loginItemOn = LoginItem.isEnabled
+            loginItemNeedsApproval = LoginItem.requiresApproval
         }
     }
 
@@ -276,6 +278,14 @@ struct PopoverView: View {
                     .labelsHidden()
             }
 
+            if loginItemNeedsApproval {
+                Text(clock.t("已注册，还需要在系统设置的「登录项」里允许。",
+                             "Registered — approve it in System Settings → Login Items."))
+                    .font(.system(size: 10))
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             if let loginItemError {
                 Text(loginItemError)
                     .font(.system(size: 10))
@@ -381,6 +391,7 @@ struct PopoverView: View {
                     )
                 }
                 loginItemOn = LoginItem.isEnabled
+            loginItemNeedsApproval = LoginItem.requiresApproval
             }
         )
     }

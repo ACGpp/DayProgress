@@ -152,19 +152,18 @@ final class DayClock: ObservableObject {
             Key.showFloatingCard: true,
             Key.cardSize: CardSize.large.rawValue,
             Key.cardStyle: CardStyle.dark.rawValue,
-            Key.language: Language.chinese.rawValue,
             Key.progressMode: ProgressMode.elapsed.rawValue,
             Key.percentPrecision: PercentPrecision.decimal.rawValue,
             Key.timeZoneID: TimeZoneOption.systemID,
         ])
         self.now = dateProvider()
         self.mode = DayMode(rawValue: defaults.string(forKey: Key.mode) ?? "") ?? .natural
-        self.customStartMinutes = defaults.integer(forKey: Key.customStart)
-        self.customEndMinutes = defaults.integer(forKey: Key.customEnd)
+        self.customStartMinutes = Self.normalizedMinutes(defaults.integer(forKey: Key.customStart))
+        self.customEndMinutes = Self.normalizedMinutes(defaults.integer(forKey: Key.customEnd))
         self.showFloatingCard = defaults.bool(forKey: Key.showFloatingCard)
         self.cardSize = CardSize(rawValue: defaults.string(forKey: Key.cardSize) ?? "") ?? .large
         self.cardStyle = CardStyle(rawValue: defaults.string(forKey: Key.cardStyle) ?? "") ?? .dark
-        self.language = Language(rawValue: defaults.string(forKey: Key.language) ?? "") ?? .chinese
+        self.language = Language(rawValue: defaults.string(forKey: Key.language) ?? "") ?? .systemDefault
         self.progressMode = ProgressMode(rawValue: defaults.string(forKey: Key.progressMode) ?? "") ?? .elapsed
         self.percentPrecision = PercentPrecision(rawValue: defaults.string(forKey: Key.percentPrecision) ?? "") ?? .decimal
         self.timeZoneID = defaults.string(forKey: Key.timeZoneID) ?? TimeZoneOption.systemID
@@ -246,30 +245,47 @@ final class DayClock: ObservableObject {
             return DayWindow(start: startOfDay, end: end)
 
         case .custom:
-            let start = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
-            let end = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
-
-            if customEndMinutes > customStartMinutes {
+            if customStartMinutes == customEndMinutes {
+                // 起止相同视为 24 小时，以开始时刻为一天的起点。
+                let todayStart = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
+                let start: Date
+                if date >= todayStart {
+                    start = todayStart
+                } else {
+                    start = calendar.date(byAdding: .day, value: -1, to: todayStart)
+                        ?? todayStart.addingTimeInterval(-86_400)
+                }
+                let end = calendar.date(byAdding: .day, value: 1, to: start)
+                    ?? start.addingTimeInterval(86_400)
                 return DayWindow(start: start, end: end)
             }
-            if customEndMinutes == customStartMinutes {
-                // 起止相同视为一整天。
-                let next = calendar.date(byAdding: .day, value: 1, to: start)
-                    ?? start.addingTimeInterval(86_400)
-                return DayWindow(start: start, end: next)
+
+            if customStartMinutes < customEndMinutes {
+                // 当天窗口。窗口外由进度钳制到 0% / 100%，剩余时间不会超过总时长。
+                let start = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
+                let end = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
+                return DayWindow(start: start, end: end)
             }
 
-            // 跨夜窗口：选出当前所在的那一段。
-            let minutesNow = minutesSinceMidnight(date, calendar: calendar)
-            if minutesNow < customEndMinutes {
-                let previousDay = calendar.date(byAdding: .day, value: -1, to: startOfDay)
-                    ?? startOfDay.addingTimeInterval(-86_400)
-                let previousStart = time(on: previousDay, minutes: customStartMinutes, calendar: calendar)
-                return DayWindow(start: previousStart, end: end)
+            // 跨夜窗口：
+            // - 凌晨（< 结束时间）：昨晚开始的那一段
+            // - 晚上（>= 开始时间）：今晚开始的那一段
+            // - 其余时间：最近结束的一段（100%，剩余 0）
+            let endToday = time(on: startOfDay, minutes: customEndMinutes, calendar: calendar)
+            let startToday = time(on: startOfDay, minutes: customStartMinutes, calendar: calendar)
+            let previousDay = calendar.date(byAdding: .day, value: -1, to: startOfDay)
+                ?? startOfDay.addingTimeInterval(-86_400)
+            let previousStart = time(on: previousDay, minutes: customStartMinutes, calendar: calendar)
+
+            if date < endToday {
+                return DayWindow(start: previousStart, end: endToday)
             }
-            let next = calendar.date(byAdding: .day, value: 1, to: end)
-                ?? end.addingTimeInterval(86_400)
-            return DayWindow(start: start, end: next)
+            if date >= startToday {
+                let next = calendar.date(byAdding: .day, value: 1, to: endToday)
+                    ?? endToday.addingTimeInterval(86_400)
+                return DayWindow(start: startToday, end: next)
+            }
+            return DayWindow(start: previousStart, end: endToday)
         }
     }
 
@@ -301,7 +317,7 @@ final class DayClock: ObservableObject {
         }
     }
 
-    var remaining: TimeInterval { max(0, window.end.timeIntervalSince(now)) }
+    var remaining: TimeInterval { min(max(0, window.end.timeIntervalSince(now)), window.duration) }
     var elapsed: TimeInterval { min(max(0, now.timeIntervalSince(window.start)), window.duration) }
 
     var remainingText: String { durationText(remaining) }
@@ -341,8 +357,8 @@ final class DayClock: ObservableObject {
 
         switch mode {
         case .natural:
-            return t("自然日 · 00:00 – 24:00 · 共 24 小时",
-                     "Natural day · 00:00 – 24:00 · 24h")
+            return t("自然日 · 00:00 – 24:00 · 共 \(hoursText) 小时",
+                     "Natural day · 00:00 – 24:00 · \(hoursText)h")
         case .custom:
             let start = clockText(window.start)
             let end = clockText(window.end)
@@ -411,6 +427,11 @@ final class DayClock: ObservableObject {
         formatter.timeZone = activeTimeZone
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
+    }
+
+    private static func normalizedMinutes(_ value: Int) -> Int {
+        let clamped = min(max(value, 0), 24 * 60 - 1)
+        return (clamped / 5) * 5
     }
 
     private func time(on day: Date, minutes: Int, calendar: Calendar) -> Date {

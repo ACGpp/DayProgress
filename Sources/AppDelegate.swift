@@ -21,6 +21,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let clock = DayClock.shared
         createPanel(clock: clock)
 
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(screenParametersChanged),
+            name: NSApplication.didChangeScreenParametersNotification,
+            object: nil
+        )
+
         clock.$showFloatingCard
             .removeDuplicates()
             .receive(on: RunLoop.main)
@@ -155,10 +162,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setPanelVisible(_ visible: Bool) {
         guard let panel else { return }
         if visible {
+            clampPanelIntoView()
             panel.orderFrontRegardless()
         } else {
             panel.orderOut(nil)
         }
+    }
+
+    /// 屏幕变化 / 重新显示时把浮窗拉回可见区域，避免拖到屏幕外后找不回来。
+    private func clampPanelIntoView() {
+        guard let panel else { return }
+        let origin = clampOrigin(panel.frame.origin, size: panel.frame.size)
+        if origin != panel.frame.origin {
+            panel.setFrameOrigin(origin)
+        }
+    }
+
+    @objc private func screenParametersChanged() {
+        clampPanelIntoView()
     }
 
     // MARK: - 位置

@@ -11,9 +11,18 @@ permissions:
 jobs:
   release:
     name: Publish release
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check tag matches app version
+        run: |
+          PLIST_VERSION=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" Resources/Info.plist)
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          if [ "$PLIST_VERSION" != "$TAG_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match CFBundleShortVersionString $PLIST_VERSION"
+            exit 1
+          fi
 
       - name: Build universal app
         run: ./release.sh

@@ -5,12 +5,12 @@ import ServiceManagement
 @MainActor
 enum LoginItem {
     static var isEnabled: Bool {
-        switch SMAppService.mainApp.status {
-        case .enabled, .requiresApproval:
-            return true
-        default:
-            return false
-        }
+        SMAppService.mainApp.status == .enabled
+    }
+
+    /// 已注册但用户还没在系统设置里批准。
+    static var requiresApproval: Bool {
+        SMAppService.mainApp.status == .requiresApproval
     }
 
     static func setEnabled(_ enabled: Bool) throws {

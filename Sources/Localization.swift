@@ -14,6 +14,11 @@ enum Language: String, CaseIterable, Identifiable {
     var locale: Locale {
         Locale(identifier: self == .chinese ? "zh_CN" : "en_US")
     }
+
+    /// 新用户默认跟随系统语言。
+    static var systemDefault: Language {
+        Locale.preferredLanguages.first?.hasPrefix("zh") == true ? .chinese : .english
+    }
 }
 
 /// 百分比显示方式：已过 / 剩余。

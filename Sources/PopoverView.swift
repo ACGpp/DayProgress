@@ -212,36 +212,46 @@ struct PopoverView: View {
 
             thinSeparator
 
-            settingRow(clock.t("浮窗尺寸", "Card size")) {
-                Picker("", selection: $clock.cardSize) {
-                    ForEach(CardSize.allCases) { size in
-                        Text(size.title(clock.language)).tag(size)
-                    }
+            settingRow(clock.t("显示方式", "Display")) {
+                Picker("", selection: $clock.showFloatingCard) {
+                    Text(clock.t("菜单栏 + 浮窗", "Menu bar + card")).tag(true)
+                    Text(clock.t("仅菜单栏", "Menu bar only")).tag(false)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                .frame(width: 168)
+                .frame(width: 200)
             }
 
-            settingRow(clock.t("浮窗样式", "Card style")) {
-                Picker("", selection: $clock.cardStyle) {
-                    ForEach(CardStyle.allCases) { style in
-                        Text(style.title(clock.language)).tag(style)
+            if !clock.showFloatingCard {
+                Text(clock.t("桌面浮窗已隐藏，只保留菜单栏百分比；随时可以切回来。",
+                             "Floating card hidden — only the menu bar percentage stays. Switch back anytime."))
+                    .font(.system(size: 10))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if clock.showFloatingCard {
+                settingRow(clock.t("浮窗尺寸", "Card size")) {
+                    Picker("", selection: $clock.cardSize) {
+                        ForEach(CardSize.allCases) { size in
+                            Text(size.title(clock.language)).tag(size)
+                        }
                     }
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 168)
-            }
-
-            HStack {
-                Text(clock.t("桌面浮窗", "Floating card"))
-                    .font(.system(size: 12))
-                Spacer()
-                Toggle("", isOn: $clock.showFloatingCard)
-                    .toggleStyle(.switch)
-                    .controlSize(.small)
+                    .pickerStyle(.segmented)
                     .labelsHidden()
+                    .frame(width: 168)
+                }
+
+                settingRow(clock.t("浮窗样式", "Card style")) {
+                    Picker("", selection: $clock.cardStyle) {
+                        ForEach(CardStyle.allCases) { style in
+                            Text(style.title(clock.language)).tag(style)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .frame(width: 168)
+                }
             }
 
             thinSeparator

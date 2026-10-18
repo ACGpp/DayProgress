@@ -33,7 +33,7 @@ struct WelcomeView: View {
                     detail: t("打开面板，看今天、换设置、退出 App。", "Open the panel for progress, settings and quit."))
                 row(icon: "hand.draw",
                     title: t("拖动浮窗", "Drag the floating card"),
-                    detail: t("摆到喜欢的位置，右键可以随时隐藏。", "Place it anywhere; right-click to hide it."))
+                    detail: t("摆到喜欢的位置，右键可以随时隐藏；只想保留菜单栏，也能在设置里关掉。", "Place it anywhere; right-click to hide it. You can also turn it off in Settings and keep only the menu bar."))
                 row(icon: "gearshape",
                     title: t("按需定制", "Make it yours"),
                     detail: t("尺寸、外观、语言、时区、自定义时段都在设置里。", "Size, style, language, time zone and custom hours live in Settings."))

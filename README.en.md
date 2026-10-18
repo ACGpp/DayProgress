@@ -106,6 +106,7 @@ Three sizes and three styles (dark / glass / clear):
 
 - **Live percentage** in the menu bar (`⏳ 79.0%`), full panel on click.
 - **Floating card**: ring + big percentage + time left; always on top, draggable, remembers its position.
+- **Menu bar only**: switch to “Menu bar only” in Settings if you prefer a clean desktop without the floating card.
 - **Elapsed / remaining mode** — the ring follows the selected value.
 - **Chinese / English UI**, switchable in settings.
 - **19 time zones** plus "follow system"; the date and “today” follow the chosen zone.

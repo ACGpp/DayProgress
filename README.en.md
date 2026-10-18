@@ -181,4 +181,4 @@ If this makes you glance at the clock a little more often, a Star ⭐️ is appr
 
 ## License
 
-[MIT](LICENSE) © 2026 shouzhong
+[MIT](LICENSE) © 2026 ACGpp

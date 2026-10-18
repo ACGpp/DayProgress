@@ -192,4 +192,4 @@ DAYPROGRESS_DEBUG_POPOVER=settings ./build/DayProgress.app/Contents/MacOS/DayPro
 
 ## License
 
-[MIT](LICENSE) © 2026 shouzhong
+[MIT](LICENSE) © 2026 ACGpp

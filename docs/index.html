@@ -137,6 +137,19 @@
   .shot figcaption{margin-top:20px; font-size:13.5px; font-weight:700; color:var(--muted)}
   .shot.tall img{width:min(100%,340px)}
 
+  /* what's new */
+  .news-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:30px}
+  .news-item{display:flex; gap:14px; align-items:flex-start; background:var(--card);
+    border:1px solid var(--line); border-radius:var(--radius); padding:24px;
+    box-shadow:0 12px 30px rgba(25,44,80,.05)}
+  .news-num{flex:0 0 auto; width:30px; height:30px; border-radius:50%; display:flex;
+    align-items:center; justify-content:center; font-size:12px; font-weight:800;
+    color:var(--teal); background:rgba(31,174,153,.1); border:1px solid rgba(31,174,153,.22)}
+  .news-item h3{font-size:16px; margin:2px 0 6px; letter-spacing:-.01em}
+  .news-item p{font-size:14px; line-height:1.6; color:var(--muted); margin:0}
+  .news-more{margin-top:24px; font-size:14px; font-weight:700}
+  .news-more a{color:var(--blue)}
+
   /* download */
   .download-card{position:relative; overflow:hidden; border-radius:30px; padding:52px 54px;
     background:
@@ -175,6 +188,7 @@
     .hero-inner{grid-template-columns:1fr; padding-top:60px; gap:40px}
     .why-inner{grid-template-columns:1fr}
     .grid{grid-template-columns:repeat(2,1fr)}
+    .news-grid{grid-template-columns:1fr}
     .shots{grid-template-columns:1fr}
     .install-steps{grid-template-columns:repeat(2,1fr)}
   }
@@ -201,6 +215,7 @@
     <nav class="nav-links">
       <a href="#why" data-i18n="nav.why">为什么</a>
       <a href="#features" data-i18n="nav.features">功能</a>
+      <a href="#whats-new" data-i18n="nav.news">更新</a>
       <a href="#screenshots" data-i18n="nav.screenshots">截图</a>
       <a href="#download" data-i18n="nav.download">下载</a>
       <a href="https://github.com/ACGpp/DayProgress" target="_blank" rel="noopener">GitHub</a>
@@ -213,7 +228,7 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <span class="badge" data-i18n="hero.badge">macOS 13+ · 免费开源</span>
+        <span class="badge" data-i18n="hero.badge">v1.2.1 · macOS 13+ · 免费开源</span>
         <h1 data-i18n="hero.title">24 分钟，<br>是你一天的 <span class="grad">1/60</span></h1>
         <p class="hero-sub" data-i18n="hero.sub">DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。</p>
         <div class="cta">
@@ -284,6 +299,43 @@
     </div>
   </section>
 
+  <section class="section" id="whats-new">
+    <p class="eyebrow" data-i18n="news.eyebrow">最近更新</p>
+    <h2 data-i18n="news.title">1.2.1：小更新，把体验修顺了</h2>
+    <p class="lead" data-i18n="news.lead">没有新功能，修的是那些每天都会碰到的小地方。</p>
+    <div class="news-grid">
+      <div class="news-item">
+        <span class="news-num">01</span>
+        <div>
+          <h3 data-i18n="news.1.t">首次启动引导</h3>
+          <p data-i18n="news.1.d">第一次打开会告诉你怎么用菜单栏、浮窗和退出，不用自己摸索。</p>
+        </div>
+      </div>
+      <div class="news-item">
+        <span class="news-num">02</span>
+        <div>
+          <h3 data-i18n="news.2.t">结束的时候说清楚</h3>
+          <p data-i18n="news.2.d">时段走完显示「这个时段已结束」，并告诉你下一段几点开始。</p>
+        </div>
+      </div>
+      <div class="news-item">
+        <span class="news-num">03</span>
+        <div>
+          <h3 data-i18n="news.3.t">百分比向下取整</h3>
+          <p data-i18n="news.3.d">99.9% 不会提前显示成 100%，等时钟真正走完才算。</p>
+        </div>
+      </div>
+      <div class="news-item">
+        <span class="news-num">04</span>
+        <div>
+          <h3 data-i18n="news.4.t">安装说明补全</h3>
+          <p data-i18n="news.4.d">README 和这个页面都写了 Gatekeeper 放行、卸载和常见问题。</p>
+        </div>
+      </div>
+    </div>
+    <p class="news-more"><a href="https://github.com/ACGpp/DayProgress/releases" target="_blank" rel="noopener" data-i18n="news.more">查看完整更新日志 →</a></p>
+  </section>
+
   <section class="section" id="screenshots">
     <p class="eyebrow" data-i18n="shots.eyebrow">截图</p>
     <h2 data-i18n="shots.title">真实界面</h2>
@@ -311,7 +363,7 @@
     <div class="download-card">
       <div>
         <h2 data-i18n="dl.title">下载 DayProgress</h2>
-        <p data-i18n="dl.sub">macOS 13+ · 通用二进制 · 免费开源</p>
+        <p data-i18n="dl.sub">v1.2.1 · macOS 13+ · 通用二进制 · 免费开源</p>
       </div>
       <a class="btn light" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="dl.button">下载最新版</a>
     </div>
@@ -372,9 +424,10 @@ const I18N = {
   zh: {
     "nav.why": "为什么",
     "nav.features": "功能",
+    "nav.news": "更新",
     "nav.screenshots": "截图",
     "nav.download": "下载",
-    "hero.badge": "macOS 13+ · 免费开源",
+    "hero.badge": "v1.2.1 · macOS 13+ · 免费开源",
     "hero.title": "24 分钟，<br>是你一天的 <span class=\"grad\">1/60</span>",
     "hero.sub": "DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。",
     "hero.download": "下载 macOS 版",
@@ -407,8 +460,20 @@ const I18N = {
     "shots.2": "设置页",
     "shots.3": "剩余模式",
     "shots.4": "英文界面",
+    "news.eyebrow": "最近更新",
+    "news.title": "1.2.1：小更新，把体验修顺了",
+    "news.lead": "没有新功能，修的是那些每天都会碰到的小地方。",
+    "news.1.t": "首次启动引导",
+    "news.1.d": "第一次打开会告诉你怎么用菜单栏、浮窗和退出，不用自己摸索。",
+    "news.2.t": "结束的时候说清楚",
+    "news.2.d": "时段走完显示「这个时段已结束」，并告诉你下一段几点开始。",
+    "news.3.t": "百分比向下取整",
+    "news.3.d": "99.9% 不会提前显示成 100%，等时钟真正走完才算。",
+    "news.4.t": "安装说明补全",
+    "news.4.d": "README 和这个页面都写了 Gatekeeper 放行、卸载和常见问题。",
+    "news.more": "查看完整更新日志 →",
     "dl.title": "下载 DayProgress",
-    "dl.sub": "macOS 13+ · 通用二进制 · 免费开源",
+    "dl.sub": "v1.2.1 · macOS 13+ · 通用二进制 · 免费开源",
     "dl.button": "下载最新版",
     "dl.install.title": "安装步骤",
     "dl.step1.t": "下载并解压",
@@ -425,9 +490,10 @@ const I18N = {
   en: {
     "nav.why": "Why",
     "nav.features": "Features",
+    "nav.news": "What's new",
     "nav.screenshots": "Screenshots",
     "nav.download": "Download",
-    "hero.badge": "macOS 13+ · Free & open source",
+    "hero.badge": "v1.2.1 · macOS 13+ · Free & open source",
     "hero.title": "24 minutes,<br>is <span class=\"grad\">1/60</span> of your day",
     "hero.sub": "DayProgress is a tiny macOS menu bar app that makes today's progress visible — one glance and you know how much of the day is already gone.",
     "hero.download": "Download for macOS",
@@ -460,8 +526,20 @@ const I18N = {
     "shots.2": "Settings",
     "shots.3": "Remaining mode",
     "shots.4": "English UI",
+    "news.eyebrow": "What's new",
+    "news.title": "1.2.1 — a small polish update",
+    "news.lead": "No new features — just the small things you hit every day.",
+    "news.1.t": "First-run guide",
+    "news.1.d": "A one-time window explains the menu bar, floating card and quit.",
+    "news.2.t": "Clearer endings",
+    "news.2.d": "When a session ends it says so, and when the next one starts.",
+    "news.3.t": "Percentages floor",
+    "news.3.d": "99.9% no longer shows as 100% before the clock actually finishes.",
+    "news.4.t": "Install guide",
+    "news.4.d": "Gatekeeper steps, uninstall and troubleshooting are in the README and on this page.",
+    "news.more": "Read the full changelog →",
     "dl.title": "Download DayProgress",
-    "dl.sub": "macOS 13+ · Universal binary · Free & open source",
+    "dl.sub": "v1.2.1 · macOS 13+ · Universal binary · Free & open source",
     "dl.button": "Get the latest release",
     "dl.install.title": "Install",
     "dl.step1.t": "Download & unzip",

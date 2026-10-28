@@ -92,35 +92,41 @@ DayProgress 是纯菜单栏 App（`LSUIElement`），没有 Dock 图标。第一
 
 菜单栏 + 桌面浮窗：
 
-![菜单栏下拉面板](docs/popover.png)
+以下图片由当前 1.2.2 界面代码生成，使用固定时间和上海时区展示；毛玻璃预览使用示意背景，实际效果随壁纸变化。
 
-![桌面浮窗](docs/floating-card.png)
+<img src="docs/popover.png" alt="菜单栏下拉面板" width="384">
+
+<img src="docs/floating-card.png" alt="桌面浮窗" width="440">
 
 设置页（面板右上角齿轮）：
 
-![设置页](docs/popover-settings.png)
+<img src="docs/popover-settings.png" alt="设置页" width="384">
+
+选择「仅菜单栏」后，浮窗相关选项收起：
+
+<img src="docs/popover-menu-only.png" alt="仅菜单栏设置" width="384">
 
 中英文实时切换：
 
-![English panel](docs/popover-en.png)
+<img src="docs/popover-en.png" alt="English panel" width="384">
 
 进度模式切成“还剩多少”，环和数字一起反向：
 
-![剩余模式浮窗](docs/floating-card-remaining.png)
+<img src="docs/floating-card-remaining.png" alt="剩余模式浮窗" width="440">
 
 三档尺寸 + 深色 / 毛玻璃 / 透明三种外观：
 
-![中号浮窗](docs/floating-card-medium.png)
+<img src="docs/floating-card-medium.png" alt="中号浮窗" width="440">
 
-![小号浮窗](docs/floating-card-mini.png)
+<img src="docs/floating-card-mini.png" alt="小号浮窗" width="440">
 
-毛玻璃效果（真实截图）：
+毛玻璃样式预览（实机模糊效果随桌面背景变化）：
 
-![毛玻璃浮窗](docs/floating-card-glass.png)
+<img src="docs/floating-card-glass.png" alt="毛玻璃浮窗" width="440">
 
-透明效果（真实截图）：
+透明样式预览：
 
-![透明浮窗](docs/floating-card-plain.png)
+<img src="docs/floating-card-plain.png" alt="透明浮窗" width="440">
 
 ## 功能
 
@@ -183,6 +189,7 @@ DayProgress/
 改界面时想快速看效果：
 
 ```bash
+./preview.sh --update-docs  # 同步 README 图片
 ./preview.sh   # 输出 build/preview/card-*.png、popover-*.png 和 build/AppIcon.png
 ```
 

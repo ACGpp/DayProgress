@@ -14,19 +14,22 @@ struct PreviewRenderer {
         _ = NSApplication.shared
         NSApp.setActivationPolicy(.prohibited)
 
-        let suiteName = "dayprogress.preview"
+        let suiteName = "dayprogress.preview.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName) ?? .standard
-        defaults.removePersistentDomain(forName: suiteName)
+        defer { defaults.removePersistentDomain(forName: suiteName) }
 
         var components = DateComponents()
         components.year = 2026
         components.month = 10
-        components.day = 17
+        components.day = 28
         components.hour = 18
         components.minute = 9
-        let fixedDate = Calendar.current.date(from: components) ?? Date()
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        let fixedDate = calendar.date(from: components)!
         let clock = DayClock(defaults: defaults, dateProvider: { fixedDate }, startsTimer: false)
 
+        clock.timeZoneID = "Asia/Shanghai"
         clock.cardStyle = .dark
         clock.progressMode = .elapsed
 
@@ -46,6 +49,9 @@ struct PreviewRenderer {
         clock.cardStyle = .plain
         render(desktopScene(clock: clock), scale: 2, name: "card-plain.png")
 
+        clock.cardStyle = .glass
+        render(desktopScene(clock: clock), scale: 2, name: "card-glass.png")
+
         clock.cardStyle = .dark
         clock.progressMode = .remaining
         render(desktopScene(clock: clock), scale: 2, name: "card-remaining.png")
@@ -53,6 +59,15 @@ struct PreviewRenderer {
 
         render(popoverPreview(clock: clock, dark: false), scale: 2, name: "popover-light.png")
         render(popoverPreview(clock: clock, dark: true), scale: 2, name: "popover-dark.png")
+        clock.language = .english
+        render(popoverPreview(clock: clock, dark: false), scale: 2, name: "popover-en.png")
+        clock.language = .chinese
+        clock.mode = .custom
+        clock.customStartMinutes = 7 * 60
+        clock.customEndMinutes = 23 * 60
+        render(popoverPreview(clock: clock, dark: false, settings: true), scale: 2, name: "popover-settings.png")
+        clock.showFloatingCard = false
+        render(popoverPreview(clock: clock, dark: false, settings: true), scale: 2, name: "popover-menu-only.png")
         render(iconArtwork, scale: 1, name: "AppIcon.png", directory: "build")
     }
 
@@ -67,15 +82,22 @@ struct PreviewRenderer {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            FloatingCardView(clock: clock)
+            ZStack {
+                if clock.cardStyle == .glass {
+                    RoundedRectangle(cornerRadius: clock.cardSize.cornerRadius)
+                        .fill(.ultraThinMaterial)
+                        .frame(width: clock.cardSize.size.width, height: clock.cardSize.size.height)
+                }
+                FloatingCardView(clock: clock)
+            }
         }
         .frame(width: 440, height: 240)
         .environment(\.colorScheme, .dark)
     }
 
     @MainActor
-    private static func popoverPreview(clock: DayClock, dark: Bool) -> some View {
-        PopoverView(clock: clock)
+    private static func popoverPreview(clock: DayClock, dark: Bool, settings: Bool = false) -> some View {
+        PopoverView(clock: clock, startsOnSettings: settings)
             .frame(width: 336)
             .fixedSize(horizontal: true, vertical: true)
             .background(dark ? Color(red: 0.14, green: 0.14, blue: 0.15) : Color(red: 0.95, green: 0.95, blue: 0.96))
@@ -126,14 +148,23 @@ struct PreviewRenderer {
                                         scale: CGFloat,
                                         name: String,
                                         directory: String = "build/preview") {
-        let renderer = ImageRenderer(content: view)
-        renderer.scale = scale
-        guard let image = renderer.nsImage,
-              let tiff = image.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiff),
-              let png = bitmap.representation(using: .png, properties: [:]) else {
-            print("render failed: \(name)")
-            return
+        // NSHostingView also renders AppKit-backed controls (Picker, Toggle).
+        let hosting = NSHostingView(rootView: view)
+        let size = hosting.fittingSize
+        hosting.frame = NSRect(origin: .zero, size: size)
+        let window = NSWindow(contentRect: hosting.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.contentView = hosting
+        hosting.layoutSubtreeIfNeeded()
+        guard let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil,
+            pixelsWide: Int(size.width * scale), pixelsHigh: Int(size.height * scale),
+            bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+            colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else {
+            fatalError("Cannot allocate preview: \(name)")
+        }
+        bitmap.size = size
+        hosting.cacheDisplay(in: hosting.bounds, to: bitmap)
+        guard let png = bitmap.representation(using: .png, properties: [:]) else {
+            fatalError("Cannot encode preview: \(name)")
         }
         let directoryURL = URL(fileURLWithPath: directory, isDirectory: true)
         try? FileManager.default.createDirectory(at: directoryURL, withIntermediateDirectories: true)

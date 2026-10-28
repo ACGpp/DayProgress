@@ -90,29 +90,35 @@ Someone on X said it best: **24 minutes is 1/60 of your day.**
 
 Menu bar panel and floating card:
 
-![Menu bar panel](docs/popover.png)
+These previews are generated from the current 1.2.2 UI with a fixed time in Shanghai. Glass uses an illustrative backdrop; its live appearance depends on your wallpaper.
 
-![Floating card](docs/floating-card.png)
+<img src="docs/popover.png" alt="Menu bar panel" width="384">
+
+<img src="docs/floating-card.png" alt="Floating card" width="440">
 
 Settings page (gear icon on the panel):
 
-![Settings](docs/popover-settings.png)
+<img src="docs/popover-settings.png" alt="Settings" width="384">
+
+Menu-bar-only mode hides the floating-card options:
+
+<img src="docs/popover-menu-only.png" alt="Menu-bar-only settings" width="384">
 
 Chinese / English UI, switchable on the fly:
 
-![English panel](docs/popover-en.png)
+<img src="docs/popover-en.png" alt="English panel" width="384">
 
 Progress mode can show the day *remaining* instead of elapsed:
 
-![Remaining mode](docs/floating-card-remaining.png)
+<img src="docs/floating-card-remaining.png" alt="Remaining mode" width="440">
 
 Three sizes and three styles (dark / glass / clear):
 
-![Medium card](docs/floating-card-medium.png)
+<img src="docs/floating-card-medium.png" alt="Medium card" width="440">
 
-![Small card](docs/floating-card-mini.png)
+<img src="docs/floating-card-mini.png" alt="Small card" width="440">
 
-![Glass card](docs/floating-card-glass.png)
+<img src="docs/floating-card-glass.png" alt="Glass card" width="440">
 
 ## Features
 
@@ -173,6 +179,7 @@ Quick UI preview without clicking the menu bar:
 
 ```bash
 ./preview.sh
+./preview.sh --update-docs  # regenerate README images
 ```
 
 Debug window (useful for screenshots):

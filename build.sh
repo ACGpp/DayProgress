@@ -12,6 +12,7 @@ CACHE="$(pwd)/.build-cache/modules"
 DEPLOYMENT_TARGET="13.0"
 
 SOURCES=(
+    Sources/MenuBarLabel.swift
     Sources/DayProgressApp.swift
     Sources/AppDelegate.swift
     Sources/DayClock.swift

@@ -140,6 +140,28 @@ final class DayClock: ObservableObject {
     private let defaults: UserDefaults
     private let dateProvider: () -> Date
     private var timer: Timer?
+    private let titleFormatter = DateFormatter()
+    private let timeFormatter = DateFormatter()
+    private var formatterLanguage: Language?
+    private var formatterTimeZone: TimeZone?
+
+    private func prepareFormatters() {
+        let zone = activeTimeZone
+        guard formatterLanguage != language || formatterTimeZone != zone else { return }
+        formatterLanguage = language
+        formatterTimeZone = zone
+        for formatter in [titleFormatter, timeFormatter] {
+            formatter.locale = language.locale
+            formatter.timeZone = zone
+        }
+        titleFormatter.dateFormat = language == .chinese ? "M月d日 · EEEE" : "MMM d · EEEE"
+        timeFormatter.dateFormat = "HH:mm"
+    }
+
+    /// Also used for wake/time-change notifications and deterministic tests.
+    func refresh() {
+        now = dateProvider()
+    }
 
     init(defaults: UserDefaults = .standard,
          dateProvider: @escaping () -> Date = { Date() },
@@ -379,11 +401,8 @@ final class DayClock: ObservableObject {
     // MARK: - 文案
 
     var todayTitle: String {
-        let formatter = DateFormatter()
-        formatter.locale = language.locale
-        formatter.timeZone = activeTimeZone
-        formatter.dateFormat = language == .chinese ? "M月d日 · EEEE" : "MMM d · EEEE"
-        return formatter.string(from: now)
+        prepareFormatters()
+        return titleFormatter.string(from: now)
     }
 
     var windowTitle: String {
@@ -490,11 +509,8 @@ final class DayClock: ObservableObject {
     }
 
     private func clockText(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = language.locale
-        formatter.timeZone = activeTimeZone
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
+        prepareFormatters()
+        return timeFormatter.string(from: date)
     }
 
     private static func normalizedMinutes(_ value: Int) -> Int {
@@ -518,7 +534,7 @@ final class DayClock: ObservableObject {
         let timer = Timer(timeInterval: 10, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self else { return }
-                self.now = self.dateProvider()
+                self.refresh()
             }
         }
         timer.tolerance = 1

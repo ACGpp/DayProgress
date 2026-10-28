@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Run regression checks
+        run: ./test.sh
+
       - name: Build universal app
         run: ./release.sh
 

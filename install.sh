@@ -62,7 +62,6 @@ fi
 
 rm -rf "$TARGET"
 cp -R "$SOURCE" "$TARGET"
-xattr -dr com.apple.quarantine "$TARGET" 2>/dev/null || true
 
 # 4. 从刚装好的 App 里读版本号
 VERSION=""
@@ -98,7 +97,7 @@ cat <<EOF
   macOS 15+ 上右键 →「打开」不一定管用，请用上面的按钮。
   仅在确认 App 来自官方 Release 时，才考虑：
   xattr -dr com.apple.quarantine "${TARGET}"
-  （本脚本复制时已清除隔离标记，所以通常不会弹。）
+  本脚本保留系统隔离标记，不自动绕过 Gatekeeper。
 
 退出：点菜单栏图标 → 面板底部「退出」。
 EOF

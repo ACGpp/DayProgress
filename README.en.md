@@ -21,9 +21,11 @@
 
 ### Three steps
 
-1. **Download** the latest `DayProgress-x.y.z.zip` from [Releases](https://github.com/ACGpp/DayProgress/releases/latest).
-2. **Unzip** it — double-click the zip to get `DayProgress.app`.
-3. **Drag it into Applications** — drop the app into `/Applications` (or `~/Applications`), then double-click it.
+1. **Download** `DayProgress-x.y.z.dmg` from [Releases](https://github.com/ACGpp/DayProgress/releases/latest).
+2. **Open the disk image.** It includes the app, an Applications shortcut, and a bilingual HTML installation guide. Quit the old version, then drag the app into Applications. Choose Replace to update; preferences are preserved.
+3. **Open from Applications.** If blocked, follow Open Anyway below. Eject the disk image after installing.
+
+The alternative ZIP contains the same guide. `SHA256SUMS.txt` provides download checksums. A DMG does not bypass Gatekeeper: the app has no Apple Developer ID signing or notarization.
 
 ### First launch: Gatekeeper will block it once
 
@@ -35,7 +37,7 @@ The app is **ad-hoc signed and not notarized**, so macOS blocks the first launch
 
 On macOS 15 and later, right-click → Open may not work; the Open Anyway button is the reliable path.
 
-Terminal alternative (only if the zip came from the official Release above):
+Terminal alternative (only after verifying the download came from the official Release above):
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/DayProgress.app

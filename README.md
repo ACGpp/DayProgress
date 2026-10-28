@@ -19,15 +19,17 @@
 
 **要求**：macOS 13 或更高版本 · 通用二进制（Apple Silicon + Intel）· 免费开源（MIT）。
 
-### 三步装好
+### 下载后就能看到安装引导
 
-1. **下载**：打开 [最新 Release](https://github.com/ACGpp/DayProgress/releases/latest)，下载 `DayProgress-x.y.z.zip`。
-2. **解压**：双击 zip，得到 `DayProgress.app`。
-3. **拖进「应用程序」**：把 `DayProgress.app` 拖到 `/Applications`（或 `~/Applications`），再双击打开。
+1. **下载 DMG**：打开 [最新 Release](https://github.com/ACGpp/DayProgress/releases/latest)，选择 `DayProgress-x.y.z.dmg`（Apple Silicon / Intel 通用）。
+2. **双击打开磁盘映像**：里面有 `DayProgress.app`、`Applications` 入口，以及 **「先看这里-安装指南.html」**。先退出旧版，再把 App 拖进 Applications；更新时选择替换，设置会保留。
+3. **从「应用程序」首次打开**：若被拦截，按下面的「仍要打开」步骤处理。安装完成后推出磁盘映像。
+
+也提供 ZIP：解压后是带相同安装指南的文件夹，不再只有一个 App。发布页的 `SHA256SUMS.txt` 可用于核对下载完整性。
 
 ### 第一次打开：Gatekeeper 会拦一次
 
-App 是 **ad-hoc 签名、未做公证** 的，从网上下载后 macOS 会拦截首次启动。被拦时：
+我们目前没有 Apple Developer ID 签名和公证。App 仅做 **ad-hoc 签名**，DMG 不会绕过安全检查，从网上下载后 macOS 会拦截首次启动。被拦时：
 
 1. 打开 **「系统设置 → 隐私与安全性」**，向下找到 DayProgress 的拦截提示。
 2. 点 **「仍要打开」**（英文界面为 **Open Anyway**），按系统提示确认（可能需要登录密码）。
@@ -35,7 +37,7 @@ App 是 **ad-hoc 签名、未做公证** 的，从网上下载后 macOS 会拦�
 
 macOS 15 及以后，右键 →「打开」不一定有效，用「仍要打开」最稳。
 
-终端替代方案（仅在确认 zip 来自上面的官方 Release 时使用）：
+终端替代方案（仅在确认下载来自上面的官方 Release 且文件完整时使用）：
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/DayProgress.app

@@ -25,5 +25,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: DayProgress-universal
-          path: dist/DayProgress-*.zip
+          path: dist/*
           if-no-files-found: error

@@ -10,7 +10,21 @@ final class FloatingPanel: NSPanel {
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    private var panel: NSPanel?
+    private(set) var panel: NSPanel?
+    private let clock: DayClock
+    private let defaults: UserDefaults
+
+    override init() {
+        clock = .shared
+        defaults = .standard
+        super.init()
+    }
+
+    init(clock: DayClock, defaults: UserDefaults = .standard) {
+        self.clock = clock
+        self.defaults = defaults
+        super.init()
+    }
     private var effectView: NSVisualEffectView?
     private var hostingView: NSHostingView<FloatingCardView>?
     private var cancellables: Set<AnyCancellable> = []
@@ -19,8 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
 
-        let clock = DayClock.shared
-        createPanel(clock: clock)
+        if clock.showFloatingCard { setPanelVisible(true) }
 
         NotificationCenter.default.addObserver(
             self,
@@ -74,6 +87,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             NSApp.activate(ignoringOtherApps: true)
         }
 
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self, selector: #selector(refreshClock), name: NSWorkspace.didWakeNotification, object: nil
+        )
+        for name in [Notification.Name.NSSystemClockDidChange, .NSSystemTimeZoneDidChange] {
+            NotificationCenter.default.addObserver(self, selector: #selector(refreshClock), name: name, object: nil)
+        }
         presentWelcomeIfNeeded()
     }
 
@@ -85,11 +104,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     /// 第一次打开时用一个轻量窗口介绍菜单栏、浮窗和退出入口，只出现一次。
     private func presentWelcomeIfNeeded() {
-        let defaults = UserDefaults.standard
         guard !defaults.bool(forKey: DayClock.Key.hasSeenWelcome) else { return }
         defaults.set(true, forKey: DayClock.Key.hasSeenWelcome)
 
-        let language = DayClock.shared.language
+        let language = clock.language
         let hosting = NSHostingView(
             rootView: WelcomeView(language: language) { [weak self] in
                 self?.welcomeWindow?.close()
@@ -144,16 +162,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let container = NSView(frame: NSRect(origin: .zero, size: contentSize))
         container.autoresizingMask = [.width, .height]
 
-        let effect = NSVisualEffectView(frame: container.bounds)
-        effect.material = .hudWindow
-        effect.blendingMode = .behindWindow
-        effect.state = .active
-        effect.wantsLayer = true
-        effect.layer?.cornerRadius = card.cornerRadius
-        effect.layer?.cornerCurve = .continuous
-        effect.layer?.masksToBounds = true
-        effect.isHidden = clock.cardStyle != .glass
-        container.addSubview(effect)
 
         let hosting = NSHostingView(rootView: FloatingCardView(clock: clock))
         hosting.frame = container.bounds
@@ -162,8 +170,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         panel.contentView = container
         self.panel = panel
-        self.effectView = effect
         self.hostingView = hosting
+        apply(cardStyle: clock.cardStyle)
 
         restorePositionIfNeeded()
 
@@ -194,20 +202,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         panel.invalidateShadow()
     }
 
-    private func apply(cardStyle: CardStyle) {
-        effectView?.isHidden = cardStyle != .glass
-        panel?.hasShadow = cardStyle != .plain
-        panel?.invalidateShadow()
+    func apply(cardStyle: CardStyle) {
+        guard let panel, let container = panel.contentView else { return }
+        if cardStyle == .glass {
+            if effectView == nil {
+                let effect = NSVisualEffectView(frame: container.bounds)
+                effect.autoresizingMask = [.width, .height]
+                effect.material = .hudWindow
+                effect.blendingMode = .behindWindow
+                effect.state = .active
+                effect.wantsLayer = true
+                effect.layer?.cornerRadius = clock.cardSize.cornerRadius
+                effect.layer?.cornerCurve = .continuous
+                effect.layer?.masksToBounds = true
+                container.addSubview(effect, positioned: .below, relativeTo: hostingView)
+                effectView = effect
+            }
+        } else {
+            effectView?.removeFromSuperview()
+            effectView = nil
+        }
+        panel.hasShadow = cardStyle != .plain
+        panel.invalidateShadow()
     }
 
-    private func setPanelVisible(_ visible: Bool) {
-        guard let panel else { return }
+    func setPanelVisible(_ visible: Bool) {
         if visible {
+            clock.refresh()
+            if panel == nil { createPanel(clock: clock) }
             clampPanelIntoView()
-            panel.orderFrontRegardless()
+            panel?.orderFrontRegardless()
         } else {
+            guard let panel else { return }
+            persistPosition()
+            NotificationCenter.default.removeObserver(self, name: NSWindow.didMoveNotification, object: panel)
             panel.orderOut(nil)
+            panel.contentView = nil
+            hostingView = nil
+            effectView = nil
+            panel.close()
+            self.panel = nil
         }
+    }
+
+    @objc private func refreshClock() {
+        clock.refresh()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
 
     /// 屏幕变化 / 重新显示时把浮窗拉回可见区域，避免拖到屏幕外后找不回来。
@@ -227,7 +271,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func restorePositionIfNeeded() {
         guard let panel else { return }
-        let defaults = UserDefaults.standard
         let size = panel.frame.size
 
         let hasTopRight = defaults.object(forKey: DayClock.Key.floatingTopRightX) != nil
@@ -279,7 +322,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func persistPosition() {
         guard let panel else { return }
         let frame = panel.frame
-        let defaults = UserDefaults.standard
         defaults.set(frame.origin.x, forKey: DayClock.Key.floatingX)
         defaults.set(frame.origin.y, forKey: DayClock.Key.floatingY)
         defaults.set(frame.maxX, forKey: DayClock.Key.floatingTopRightX)

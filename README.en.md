@@ -15,6 +15,16 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
 </p>
 
+## Current release
+
+Latest release: [**v1.2.2**](https://github.com/ACGpp/DayProgress/releases/tag/v1.2.2) (2026-10-28). `main` is the current development branch, including memory improvements, guided packaging and website fixes. Check out the `v1.2.2` tag to build the published source revision.
+
+- **Less memory accumulation:** settings no longer rebuild on every clock tick; menu text updates only when changed, and hidden floating views are released.
+- **Guided installation:** [download the DMG](https://github.com/ACGpp/DayProgress/releases/download/v1.2.2/DayProgress-1.2.2.dmg), with an Applications shortcut and bilingual guide, or read the [online installation guide](https://acgpp.github.io/DayProgress/install.html).
+- **Menu-bar-only mode:** hide the floating card in Settings while keeping the percentage.
+
+See the [changelog](CHANGELOG.md). Performance measurements use an isolated probe; full-app 24-hour stability is not yet verified. See [measurement details](docs/memory-performance.md).
+
 ## Installation
 
 **Requirements:** macOS 13 or later · universal binary (Apple Silicon + Intel) · free and open source (MIT).
@@ -116,7 +126,7 @@ Three sizes and three styles (dark / glass / clear):
 - **Percent precision**: whole numbers or one decimal.
 - **Card size / style**: large / medium / small × dark / glass / clear.
 - **Launch at login**, all settings persisted locally.
-- Refreshes every 10 seconds.
+- Checks time every 10 seconds; menu text updates only when changed, with immediate refresh after wake or system-clock changes.
 
 ## Build from source
 
@@ -129,12 +139,13 @@ cd DayProgress
 ./build.sh              # current architecture
 UNIVERSAL=1 ./build.sh  # universal (arm64 + x86_64)
 ./install.sh            # copy to /Applications and launch
-./release.sh            # universal binary + zip in dist/
+./test.sh               # clock, update and window-lifecycle checks
+./release.sh            # universal DMG + ZIP + SHA256SUMS.txt in dist/
 ```
 
 Or run it directly: `open build/DayProgress.app`.
 
-GitHub Actions builds on every push, and publishes a Release when a `v*` tag is pushed.
+GitHub Actions runs checks and builds on pushes to `main` and pull requests. Pushing a matching `v*` tag runs checks and publishes the DMG, ZIP and checksums.
 
 ## Development
 
@@ -142,6 +153,7 @@ GitHub Actions builds on every push, and publishes a Release when a `v*` tag is 
 DayProgress/
 ├── Sources/
 │   ├── DayProgressApp.swift   # menu bar entry
+│   ├── MenuBarLabel.swift     # update menu text only when changed
 │   ├── AppDelegate.swift      # floating NSPanel: size, style, position
 │   ├── DayClock.swift         # time window, time zone, percentages, strings
 │   ├── Localization.swift     # language / progress mode / precision / zones
@@ -149,6 +161,9 @@ DayProgress/
 │   ├── FloatingCardView.swift # card UI (3 sizes × 3 styles)
 │   ├── PopoverView.swift      # panel: main page + settings page
 │   └── LoginItem.swift        # launch at login (SMAppService)
+├── Tests/                     # regression checks
+├── packaging/                 # bilingual installation guides
+├── Tools/MemoryProbe/         # reproducible allocation comparison
 ├── Tools/MakePreview/         # offscreen previews + app icon
 ├── docs/                      # README screenshots and icon
 ├── build.sh / preview.sh / release.sh / install.sh

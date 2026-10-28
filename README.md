@@ -15,6 +15,16 @@
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT">
 </p>
 
+## 当前版本
+
+最新发布版：[**v1.2.2**](https://github.com/ACGpp/DayProgress/releases/tag/v1.2.2)（2026-10-28）。`main` 是当前开发主线，包含本次内存优化、安装包改进和官网修复；要构建与已发布版本一致的源码，请切换到 `v1.2.2` 标签。
+
+- **更少的内存积累**：设置页不再随每次时钟刷新重建，菜单栏仅在文字变化时更新；隐藏浮窗释放视图。
+- **更直观的安装**：[下载 DMG](https://github.com/ACGpp/DayProgress/releases/download/v1.2.2/DayProgress-1.2.2.dmg)，内含 Applications 入口和双语指南；也可先看[在线安装指南](https://acgpp.github.io/DayProgress/install.html)。
+- **仅菜单栏模式**：可在设置中隐藏浮窗，保留菜单栏百分比。
+
+详见 [更新日志](CHANGELOG.md)。性能对比使用独立探针，完整应用的 24 小时稳定性尚未验证，测量口径见[性能记录](docs/memory-performance.md)。
+
 ## 安装
 
 **要求**：macOS 13 或更高版本 · 通用二进制（Apple Silicon + Intel）· 免费开源（MIT）。
@@ -124,7 +134,7 @@ DayProgress 是纯菜单栏 App（`LSUIElement`），没有 Dock 图标。第一
 - **百分比精度**：整数（`77%`）或一位小数（`77.8%`）。
 - **浮窗尺寸 / 外观**：大 / 中 / 小 × 深色 / 毛玻璃 / 透明。
 - **登录时启动**、所有设置自动保存。
-- 每 10 秒刷新一次。
+- 每 10 秒检查时间；菜单栏文字仅在内容变化时更新，唤醒或系统时间变化后立即同步。
 
 ## 从源码构建
 
@@ -137,7 +147,8 @@ cd DayProgress
 ./build.sh            # 当前架构，快
 UNIVERSAL=1 ./build.sh  # arm64 + x86_64 通用二进制
 ./install.sh          # 复制到「应用程序」并启动
-./release.sh          # 通用二进制 + 打 zip 到 dist/
+./test.sh             # 时间、刷新和浮窗生命周期回归检查
+./release.sh          # 通用版 DMG + ZIP + SHA256SUMS.txt，输出到 dist/
 ```
 
 也可以直接运行：`open build/DayProgress.app`。
@@ -150,6 +161,7 @@ CI 在 GitHub Actions 上跑（见 `.github/workflows/build.yml`），打 `v*` t
 DayProgress/
 ├── Sources/
 │   ├── DayProgressApp.swift   # 菜单栏入口
+│   ├── MenuBarLabel.swift     # 按显示变化更新菜单栏
 │   ├── AppDelegate.swift      # 桌面浮窗（NSPanel）管理：尺寸、样式、位置
 │   ├── DayClock.swift         # 计时、时区、百分比、本地化文案
 │   ├── Localization.swift     # 语言 / 进度模式 / 精度 / 时区选项
@@ -157,6 +169,9 @@ DayProgress/
 │   ├── FloatingCardView.swift # 浮窗界面（三档尺寸 × 三种外观）
 │   ├── PopoverView.swift      # 下拉面板：主页 + 设置页
 │   └── LoginItem.swift        # 登录启动（SMAppService）
+├── Tests/                     # regression checks
+├── packaging/                 # bilingual installation guides
+├── Tools/MemoryProbe/         # reproducible allocation comparison
 ├── Tools/MakePreview/         # 离屏渲染预览图与 App 图标（开发用）
 ├── docs/                      # README 截图与图标
 ├── build.sh                   # 构建 App

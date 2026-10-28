@@ -1,9 +1,41 @@
 import AppKit
+import Combine
 import SwiftUI
+
+/// Settings do not depend on every clock tick. Keep their controls out of the refresh path.
+@MainActor
+final class PopoverClockModel: ObservableObject {
+    let clock: DayClock
+    var showingSettings: Bool
+    private var settingsSignature: [String]
+    private var subscription: AnyCancellable?
+
+    init(clock: DayClock, showingSettings: Bool) {
+        self.clock = clock
+        self.showingSettings = showingSettings
+        settingsSignature = Self.signature(clock)
+        subscription = clock.objectWillChange.receive(on: RunLoop.main).sink { [weak self] in
+            guard let self else { return }
+            let next = Self.signature(self.clock)
+            if !self.showingSettings || next != self.settingsSignature {
+                self.objectWillChange.send()
+            }
+            self.settingsSignature = next
+        }
+    }
+
+    private static func signature(_ clock: DayClock) -> [String] {
+        [clock.mode.rawValue, String(clock.customStartMinutes), String(clock.customEndMinutes),
+         String(clock.showFloatingCard), clock.cardSize.rawValue, clock.cardStyle.rawValue,
+         clock.language.rawValue, clock.progressMode.rawValue, clock.percentPrecision.rawValue,
+         clock.timeZoneID] + TimeZoneOption.all.map { clock.zoneLabel(for: $0) }
+    }
+}
 
 /// 菜单栏下拉面板：主页显示一天进度，齿轮进入设置页。
 struct PopoverView: View {
-    @ObservedObject var clock: DayClock
+    @StateObject private var model: PopoverClockModel
+    private var clock: DayClock { model.clock }
 
     @State private var page: Page
     @State private var loginItemOn = false
@@ -16,7 +48,7 @@ struct PopoverView: View {
     }
 
     init(clock: DayClock, startsOnSettings: Bool = false) {
-        self.clock = clock
+        _model = StateObject(wrappedValue: PopoverClockModel(clock: clock, showingSettings: startsOnSettings))
         _page = State(initialValue: startsOnSettings ? .settings : .main)
     }
 
@@ -31,6 +63,7 @@ struct PopoverView: View {
         }
         .padding(18)
         .frame(width: 336)
+        .onChange(of: page) { model.showingSettings = $0 == .settings }
         .onAppear {
             loginItemOn = LoginItem.isEnabled
             loginItemNeedsApproval = LoginItem.requiresApproval
@@ -170,7 +203,7 @@ struct PopoverView: View {
     private var settingsContent: some View {
         VStack(alignment: .leading, spacing: 10) {
             settingRow(clock.t("计日方式", "Day range")) {
-                Picker("", selection: $clock.mode) {
+                Picker("", selection: binding(\.mode)) {
                     ForEach(DayMode.allCases) { mode in
                         Text(mode.title(clock.language)).tag(mode)
                     }
@@ -182,15 +215,15 @@ struct PopoverView: View {
 
             if clock.mode == .custom {
                 settingRow(clock.t("开始", "Start")) {
-                    timePicker($clock.customStartMinutes)
+                    timePicker(binding(\.customStartMinutes))
                 }
                 settingRow(clock.t("结束", "End")) {
-                    timePicker($clock.customEndMinutes)
+                    timePicker(binding(\.customEndMinutes))
                 }
             }
 
             settingRow(clock.t("进度模式", "Progress")) {
-                Picker("", selection: $clock.progressMode) {
+                Picker("", selection: binding(\.progressMode)) {
                     ForEach(ProgressMode.allCases) { mode in
                         Text(mode.title(clock.language)).tag(mode)
                     }
@@ -201,7 +234,7 @@ struct PopoverView: View {
             }
 
             settingRow(clock.t("百分比", "Percent")) {
-                Picker("", selection: $clock.percentPrecision) {
+                Picker("", selection: binding(\.percentPrecision)) {
                     Text("77%").tag(PercentPrecision.integer)
                     Text("77.8%").tag(PercentPrecision.decimal)
                 }
@@ -213,7 +246,7 @@ struct PopoverView: View {
             thinSeparator
 
             settingRow(clock.t("显示方式", "Display")) {
-                Picker("", selection: $clock.showFloatingCard) {
+                Picker("", selection: binding(\.showFloatingCard)) {
                     Text(clock.t("菜单栏 + 浮窗", "Menu bar + card")).tag(true)
                     Text(clock.t("仅菜单栏", "Menu bar only")).tag(false)
                 }
@@ -232,7 +265,7 @@ struct PopoverView: View {
 
             if clock.showFloatingCard {
                 settingRow(clock.t("浮窗尺寸", "Card size")) {
-                    Picker("", selection: $clock.cardSize) {
+                    Picker("", selection: binding(\.cardSize)) {
                         ForEach(CardSize.allCases) { size in
                             Text(size.title(clock.language)).tag(size)
                         }
@@ -243,7 +276,7 @@ struct PopoverView: View {
                 }
 
                 settingRow(clock.t("浮窗样式", "Card style")) {
-                    Picker("", selection: $clock.cardStyle) {
+                    Picker("", selection: binding(\.cardStyle)) {
                         ForEach(CardStyle.allCases) { style in
                             Text(style.title(clock.language)).tag(style)
                         }
@@ -257,7 +290,7 @@ struct PopoverView: View {
             thinSeparator
 
             settingRow(clock.t("语言", "Language")) {
-                Picker("", selection: $clock.language) {
+                Picker("", selection: binding(\.language)) {
                     ForEach(Language.allCases) { language in
                         Text(language.title).tag(language)
                     }
@@ -268,7 +301,7 @@ struct PopoverView: View {
             }
 
             settingRow(clock.t("时区", "Time zone")) {
-                Picker("", selection: $clock.timeZoneID) {
+                Picker("", selection: binding(\.timeZoneID)) {
                     ForEach(TimeZoneOption.all) { option in
                         Text(clock.zoneLabel(for: option)).tag(option.id)
                     }
@@ -367,6 +400,10 @@ struct PopoverView: View {
     }
 
     // MARK: - Binding
+
+    private func binding<Value>(_ keyPath: ReferenceWritableKeyPath<DayClock, Value>) -> Binding<Value> {
+        Binding(get: { clock[keyPath: keyPath] }, set: { clock[keyPath: keyPath] = $0 })
+    }
 
     private func hourBinding(_ minutes: Binding<Int>) -> Binding<Int> {
         Binding(

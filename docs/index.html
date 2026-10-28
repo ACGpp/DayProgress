@@ -150,6 +150,8 @@
   .news-more{margin-top:24px; font-size:14px; font-weight:700}
   .news-more a{color:var(--blue)}
 
+  .download-links{line-height:2;overflow-wrap:anywhere}
+  .download-links a{color:#345bb5;text-decoration:underline;text-underline-offset:3px}
   /* download */
   .download-card{position:relative; overflow:hidden; border-radius:30px; padding:52px 54px;
     background:
@@ -232,7 +234,7 @@
         <h1 data-i18n="hero.title">24 分钟，<br>是你一天的 <span class="grad">1/60</span></h1>
         <p class="hero-sub" data-i18n="hero.sub">DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。</p>
         <div class="cta">
-          <a class="btn primary" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="hero.download">下载 macOS 版</a>
+          <a class="btn primary" href="https://github.com/ACGpp/DayProgress/releases/download/v1.2.2/DayProgress-1.2.2.dmg" data-i18n="hero.download">下载 DMG · macOS</a>
           <a class="btn ghost" href="https://github.com/ACGpp/DayProgress" target="_blank" rel="noopener" data-i18n="hero.github">查看源码</a>
         </div>
         <p class="hero-note" data-i18n="hero.note">通用二进制（Apple Silicon + Intel）· MIT License</p>
@@ -314,15 +316,15 @@
       <div class="news-item">
         <span class="news-num">02</span>
         <div>
-          <h3 data-i18n="news.2.t">结束的时候说清楚</h3>
-          <p data-i18n="news.2.d">时段走完显示「这个时段已结束」，并告诉你下一段几点开始。</p>
+          <h3 data-i18n="news.2.t">仅保留菜单栏</h3>
+          <p data-i18n="news.2.d">在设置里选择「仅菜单栏」，隐藏桌面浮窗，保留随时可见的百分比。</p>
         </div>
       </div>
       <div class="news-item">
         <span class="news-num">03</span>
         <div>
-          <h3 data-i18n="news.3.t">百分比向下取整</h3>
-          <p data-i18n="news.3.d">99.9% 不会提前显示成 100%，等时钟真正走完才算。</p>
+          <h3 data-i18n="news.3.t">减少无效刷新</h3>
+          <p data-i18n="news.3.d">菜单栏仅在显示文字变化时更新；唤醒或系统时间变化后立即同步。</p>
         </div>
       </div>
       <div class="news-item">
@@ -365,8 +367,15 @@
         <h2 data-i18n="dl.title">下载 DayProgress</h2>
         <p data-i18n="dl.sub">v1.2.2 · macOS 13+ · 通用二进制 · 免费开源</p>
       </div>
-      <a class="btn light" href="https://github.com/ACGpp/DayProgress/releases/latest" data-i18n="dl.button">下载最新版</a>
+      <a class="btn light" href="https://github.com/ACGpp/DayProgress/releases/download/v1.2.2/DayProgress-1.2.2.dmg" data-i18n="dl.button">下载 1.2.2 DMG</a>
     </div>
+    <p class="download-links">
+      <a href="install.html" data-i18n="dl.guide">先看安装指南（含首次打开放行）</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/ACGpp/DayProgress/releases/download/v1.2.2/DayProgress-1.2.2.zip" data-i18n="dl.zip">备用 ZIP 下载</a>
+      <span aria-hidden="true"> · </span>
+      <a href="https://github.com/ACGpp/DayProgress/releases/tag/v1.2.2" data-i18n="dl.release">更新日志与校验和</a>
+    </p>
     <div class="install-block">
       <h3 data-i18n="dl.install.title">安装步骤</h3>
       <ol class="install-steps">
@@ -430,7 +439,7 @@ const I18N = {
     "hero.badge": "v1.2.2 · macOS 13+ · 免费开源",
     "hero.title": "24 分钟，<br>是你一天的 <span class=\"grad\">1/60</span>",
     "hero.sub": "DayProgress 是一个 macOS 菜单栏小工具：把“今天过去了多少 / 还剩多少”变成抬头就能看到的百分比。",
-    "hero.download": "下载 macOS 版",
+    "hero.download": "下载 DMG · macOS",
     "hero.github": "查看源码",
     "hero.note": "通用二进制（Apple Silicon + Intel）· MIT License",
     "why.eyebrow": "为什么做这个",
@@ -465,16 +474,19 @@ const I18N = {
     "news.lead": "减少设置页刷新造成的内存积累，下载包里直接提供安装引导。",
     "news.1.t": "减少内存积累",
     "news.1.d": "设置页不再跟着时钟反复重建，隐藏浮窗时释放视图。",
-    "news.2.t": "结束的时候说清楚",
-    "news.2.d": "时段走完显示「这个时段已结束」，并告诉你下一段几点开始。",
-    "news.3.t": "百分比向下取整",
-    "news.3.d": "99.9% 不会提前显示成 100%，等时钟真正走完才算。",
+    "news.2.t": "仅保留菜单栏",
+    "news.2.d": "在设置里选择「仅菜单栏」，隐藏桌面浮窗，保留随时可见的百分比。",
+    "news.3.t": "减少无效刷新",
+    "news.3.d": "菜单栏仅在显示文字变化时更新；唤醒或系统时间变化后立即同步。",
     "news.4.t": "随包附带安装指南",
     "news.4.d": "DMG 和 ZIP 都带双语指南，首次打开被拦也知道下一步。",
     "news.more": "查看完整更新日志 →",
     "dl.title": "下载 DayProgress",
     "dl.sub": "v1.2.2 · macOS 13+ · 通用二进制 · 免费开源",
-    "dl.button": "下载最新版",
+    "dl.button": "下载 1.2.2 DMG",
+    "dl.guide": "先看安装指南（含首次打开放行）",
+    "dl.zip": "备用 ZIP 下载",
+    "dl.release": "更新日志与校验和",
     "dl.install.title": "安装步骤",
     "dl.step1.t": "下载并打开 DMG",
     "dl.step1.d": "下载 DMG 并双击打开；内含 App、Applications 入口和双语安装指南。",
@@ -496,7 +508,7 @@ const I18N = {
     "hero.badge": "v1.2.2 · macOS 13+ · Free & open source",
     "hero.title": "24 minutes,<br>is <span class=\"grad\">1/60</span> of your day",
     "hero.sub": "DayProgress is a tiny macOS menu bar app that makes today's progress visible — one glance and you know how much of the day is already gone.",
-    "hero.download": "Download for macOS",
+    "hero.download": "Download DMG · macOS",
     "hero.github": "View source",
     "hero.note": "Universal binary (Apple Silicon + Intel) · MIT License",
     "why.eyebrow": "Why",
@@ -531,16 +543,19 @@ const I18N = {
     "news.lead": "Reduce retained settings observations and include installation help in every download.",
     "news.1.t": "Lower memory growth",
     "news.1.d": "Settings stop rebuilding on each clock tick; hidden floating views are released.",
-    "news.2.t": "Clearer endings",
-    "news.2.d": "When a session ends it says so, and when the next one starts.",
-    "news.3.t": "Percentages floor",
-    "news.3.d": "99.9% no longer shows as 100% before the clock actually finishes.",
+    "news.2.t": "Menu-bar-only mode",
+    "news.2.d": "Choose menu-bar-only mode in Settings to hide the floating card and keep the percentage.",
+    "news.3.t": "Fewer unnecessary updates",
+    "news.3.d": "Menu text updates only when it changes, with immediate refresh after wake or clock changes.",
     "news.4.t": "Install guide",
     "news.4.d": "DMG and ZIP include bilingual instructions, including first-launch security prompts.",
     "news.more": "Read the full changelog →",
     "dl.title": "Download DayProgress",
     "dl.sub": "v1.2.2 · macOS 13+ · Universal binary · Free & open source",
-    "dl.button": "Get the latest release",
+    "dl.button": "Download 1.2.2 DMG",
+    "dl.guide": "Installation guide & first-launch help",
+    "dl.zip": "Alternative ZIP download",
+    "dl.release": "Release notes & checksums",
     "dl.install.title": "Install",
     "dl.step1.t": "Download & open DMG",
     "dl.step1.d": "Open the DMG: app, Applications shortcut and bilingual guide are included.",
